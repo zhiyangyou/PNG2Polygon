@@ -45,7 +45,7 @@ public:
 	/**
 	 * @js ctor
 	 */
-	Image();
+	Image(const std::string& path);
 	/**
 	 * @js NA
 	 * @lua NA
@@ -84,13 +84,15 @@ public:
 
 	int               getWidth() { return _width; }
 	int               getHeight() { return _height; }
-	bool initWithImageFile(const std::string& path) { return true; }
-	
+
+
 	unsigned char* _data;
 	size_t _dataLen;
 	int _width;
 	int _height;
 	Format _fileType;
+private:
+	bool initWithImageFile(const std::string& path);
 };
 
 #endif    // __CC_IMAGE_H__

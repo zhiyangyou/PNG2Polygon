@@ -263,6 +263,7 @@ public:
 	 * @endcode
 	 */
 	PolygonInfo generateTriangles(const Rect& rect = Rect::ZERO, float epsilon = 2.0f, float threshold = 0.05f);
+	void generateTriangles(PolygonInfo& infoForFill, const Rect& rect = Rect::ZERO, float epsilon = 2.0f, float threshold = 0.05f);
 
 	/**
 	 * a helper function, packing autoPolygon creation, trace, reduce, expand, triangulate and calculate uv in one function
