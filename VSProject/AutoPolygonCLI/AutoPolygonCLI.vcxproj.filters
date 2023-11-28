@@ -13,10 +13,69 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="源文件\clipper">
+      <UniqueIdentifier>{c2d016e8-4567-4369-be03-e8a17395b3f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\poly2tri">
+      <UniqueIdentifier>{b0e18c69-a2b8-4068-b80b-8e7b30a6bef3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AutoPolygonCLI.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\CCAutoPolygon.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\clipper\clipper.cpp">
+      <Filter>源文件\clipper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\poly2tri\sweep\advancing_front.cc">
+      <Filter>源文件\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\poly2tri\sweep\cdt.cc">
+      <Filter>源文件\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\poly2tri\sweep\sweep.cc">
+      <Filter>源文件\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\poly2tri\sweep\sweep_context.cc">
+      <Filter>源文件\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CCGeometry.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Vec2.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Vec3.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CCImage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\poly2tri\common\shapes.cc">
+      <Filter>源文件\poly2tri</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\CCAutoPolygon.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CCGeometry.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Vec2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ccTypes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Vec3.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CCImage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

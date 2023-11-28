@@ -70,6 +70,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)..\..\src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)..\..\src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -127,7 +133,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\CCAutoPolygon.cpp" />
+    <ClCompile Include="..\..\src\CCGeometry.cpp" />
+    <ClCompile Include="..\..\src\CCImage.cpp" />
+    <ClCompile Include="..\..\src\clipper\clipper.cpp" />
+    <ClCompile Include="..\..\src\poly2tri\common\shapes.cc" />
+    <ClCompile Include="..\..\src\poly2tri\sweep\advancing_front.cc" />
+    <ClCompile Include="..\..\src\poly2tri\sweep\cdt.cc" />
+    <ClCompile Include="..\..\src\poly2tri\sweep\sweep.cc" />
+    <ClCompile Include="..\..\src\poly2tri\sweep\sweep_context.cc" />
+    <ClCompile Include="..\..\src\Vec2.cpp" />
+    <ClCompile Include="..\..\src\Vec3.cpp" />
     <ClCompile Include="AutoPolygonCLI.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\CCAutoPolygon.h" />
+    <ClInclude Include="..\..\src\CCGeometry.h" />
+    <ClInclude Include="..\..\src\CCImage.h" />
+    <ClInclude Include="..\..\src\ccTypes.h" />
+    <ClInclude Include="..\..\src\Vec2.h" />
+    <ClInclude Include="..\..\src\Vec3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
