@@ -2,7 +2,7 @@
 
 输入一个png图像，输出一个该png图像的多边形网格。
 
-效果大致是这样的
+目的可以参考TexturePacker的这个polygon精灵:
 
 <img src="docImages\image-20231128232744585.png" alt="image-20231128232744585" style="zoom: 25%;" />
 
