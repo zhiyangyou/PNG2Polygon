@@ -29,7 +29,7 @@ namespace App.Utils
                 {
                     string dllFullPath = Application.dataPath + "";
                     DirectoryInfo dir = new DirectoryInfo(dllFullPath);
-                    DirectoryInfo dirDllDir = new DirectoryInfo(dir.Parent.Parent.FullName + "/DLLExportDir");
+                    DirectoryInfo dirDllDir = new DirectoryInfo(dir.Parent.Parent.Parent.FullName + "/Plugin/win32");
                     FileInfo fileInfo = new FileInfo(dirDllDir.GetFiles().Where(info => info.FullName.EndsWith(".dll")).First().FullName);
                     _dllPath = fileInfo.FullName;
                 }
@@ -38,6 +38,9 @@ namespace App.Utils
             }
         }
 
+        [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
+        public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
+        
         [DllImport("kernel32")]
         static extern IntPtr LoadLibrary(
             string path);

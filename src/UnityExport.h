@@ -13,7 +13,7 @@ extern "C" {
 	
 	EXPORT_DLL int AutoPolygonGenerate(
 		unsigned char* data,		//  像素数据
-		size_t dataLen,					//  像素数据长度
+		int dataLen,					//  像素数据长度
 		int width,
 		int height,
 		char* name,						// 名字

@@ -8,7 +8,7 @@ extern "C" {
 
 	int AutoPolygonGenerate(
 		unsigned char* data,
-		size_t dataLen,
+		int dataLen,
 		int width,
 		int height,
 		char* name,
@@ -21,6 +21,27 @@ extern "C" {
 		MeshDataWriteCallback callback
 	)
 	{
+
+		if (!data)
+		{
+			return -2;
+		}
+		if (!name)
+		{
+			return -3;
+		}
+		if (width == 0 || height == 0)
+		{
+			return -4;
+		}
+		if (width * height * 4 != dataLen)
+		{
+			return -5;
+		}
+		if (!callback)
+		{
+			return -6;
+		}
 		// TODO 容错，各种以外情况需要即使退出，否则闪退
 		UnityImage unityImage(data, dataLen, width, height, name);
 		PolygonInfo info;

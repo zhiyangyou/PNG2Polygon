@@ -43,7 +43,9 @@
   <ItemGroup>
      <Folder Include="Assets" />
      <Folder Include="Library\BuildInstructions" />
+     <Folder Include="Assets\Runtime" />
      <Folder Include="Assets\Scenes" />
+     <Folder Include="Assets\TestImages" />
      <Reference Include="UnityEngine">
      <HintPath>F:\_UnityWorkSpace\UnityInstall\2023.1.17f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
      </Reference>
