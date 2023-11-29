@@ -39,7 +39,13 @@
     <ClInclude Include="..\..\src\CCGeometry.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\CCImage.h">
+    <ClInclude Include="..\..\src\AbsImage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\UnityImage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\UnityExport.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -48,9 +54,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\CCGeometry.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\CCImage.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\Vec2.cpp">
@@ -76,6 +79,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\poly2tri\common\shapes.cc">
       <Filter>源文件\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\UnityImage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\UnityExport.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

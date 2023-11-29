@@ -27,6 +27,7 @@ void print2File(PolygonInfo& info, const char* filename)
 int main()
 {
 	std::cout << "Hello World!\n";
+	std::cout << sizeof(V3F_C4B_T2F) << "n";
 	PNGImage img("testImages/1.png");
 	AutoPolygon p(&img);
 
