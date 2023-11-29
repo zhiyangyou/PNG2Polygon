@@ -135,8 +135,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\CCAutoPolygon.cpp" />
     <ClCompile Include="..\..\src\CCGeometry.cpp" />
-    <ClCompile Include="..\..\src\CCImage.cpp" />
     <ClCompile Include="..\..\src\clipper\clipper.cpp" />
+    <ClCompile Include="..\..\src\PNGImage.cpp" />
     <ClCompile Include="..\..\src\poly2tri\common\shapes.cc" />
     <ClCompile Include="..\..\src\poly2tri\sweep\advancing_front.cc" />
     <ClCompile Include="..\..\src\poly2tri\sweep\cdt.cc" />
@@ -147,10 +147,11 @@
     <ClCompile Include="AutoPolygonCLI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\AbsImage.h" />
     <ClInclude Include="..\..\src\CCAutoPolygon.h" />
     <ClInclude Include="..\..\src\CCGeometry.h" />
-    <ClInclude Include="..\..\src\CCImage.h" />
     <ClInclude Include="..\..\src\ccTypes.h" />
+    <ClInclude Include="..\..\src\PNGImage.h" />
     <ClInclude Include="..\..\src\stb_image.h" />
     <ClInclude Include="..\..\src\Vec2.h" />
     <ClInclude Include="..\..\src\Vec3.h" />

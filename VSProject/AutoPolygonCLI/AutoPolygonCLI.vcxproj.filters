@@ -51,11 +51,11 @@
     <ClCompile Include="..\..\src\Vec3.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\CCImage.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\poly2tri\common\shapes.cc">
       <Filter>源文件\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\PNGImage.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -74,10 +74,13 @@
     <ClInclude Include="..\..\src\Vec3.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\CCImage.h">
+    <ClInclude Include="..\..\src\stb_image.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\stb_image.h">
+    <ClInclude Include="..\..\src\PNGImage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AbsImage.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

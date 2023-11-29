@@ -35,7 +35,7 @@ THE SOFTWARE.
 #include "CCGeometry.h"
 #include "ccTypes.h"
 
-class Image;
+class AbsImage;
 
 struct Triangles
 {
@@ -172,12 +172,12 @@ public:
 	 * @param   filename    a path to image file, e.g., "scene1/monster.png".
 	 * @return  an AutoPolygon object;
 	 */
-	AutoPolygon(const std::string& filename);
+	AutoPolygon(AbsImage* image);
 
 	/**
 	 * Destructor of AutoPolygon.
 	 */
-	~AutoPolygon();
+	~AutoPolygon(){}
 
 	/**
 	 * trace all the points along the outline of the image,
@@ -277,7 +277,7 @@ public:
 	 * auto sp = Sprite::create(AutoPolygon::generatePolygon("grossini.png"));
 	 * @endcode
 	 */
-	static PolygonInfo generatePolygon(const std::string& filename, const Rect& rect = Rect::ZERO, float epsilon = 2.0f, float threshold = 0.05f);
+	static PolygonInfo generatePolygon(AbsImage * image, const Rect& rect = Rect::ZERO, float epsilon = 2.0f, float threshold = 0.05f);
 protected:
 	Vec2 findFirstNoneTransparentPixel(const Rect& rect, float threshold);
 	std::vector<Vec2> marchSquare(const Rect& rect, const Vec2& first, float threshold);
@@ -295,9 +295,8 @@ protected:
 	//real rect is the size that is in scale with the texture file
 	Rect getRealRect(const Rect& rect);
 
-	Image* _image;
+	AbsImage* _image;
 	unsigned char* _data;
-	std::string _filename;
 	unsigned int _width;
 	unsigned int _height;
 	float _scaleFactor;

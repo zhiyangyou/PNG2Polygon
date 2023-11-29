@@ -38,61 +38,18 @@ THE SOFTWARE.
     ((unsigned)((unsigned char)(vb) * ((unsigned char)(va) + 1) >> 8) << 16) | \
     ((unsigned)(unsigned char)(va) << 24))
 
-class Image
+class AbsImage
 {
 public:
-
-	/**
-	 * @js ctor
-	 */
-	Image(const std::string& path);
-	/**
-	 * @js NA
-	 * @lua NA
-	 */
-	virtual ~Image();
-
-	/** Supported formats for Image */
-	enum class Format
-	{
-		//! JPEG
-		JPG,
-		//! PNG
-		PNG,
-		//! WebP
-		WEBP,
-		//! PVR
-		PVR,
-		//! ETC
-		ETC,
-		//! S3TC
-		S3TC,
-		//! ATITC
-		ATITC,
-		//! TGA
-		TGA,
-		//! Raw Data
-		RAW_DATA,
-		//! Unknown format
-		UNKNOWN
-	};
-
-	// Getters
-	unsigned char* getData() { return _data; }
-	size_t           getDataLen() { return _dataLen; }
-	Format            getFileType() { return _fileType; }
-
-	int               getWidth() { return _width; }
-	int               getHeight() { return _height; }
+	
+	virtual ~AbsImage() {};
+	virtual unsigned char* getData() = 0;
+	virtual size_t           getDataLen() = 0;
+	virtual int               getWidth() = 0;
+	virtual int               getHeight() = 0;
+	virtual std::string getFileName() = 0;
 
 
-	unsigned char* _data;
-	size_t _dataLen;
-	int _width;
-	int _height;
-	Format _fileType;
-private:
-	bool initWithImageFile(const std::string& path);
 };
 
 #endif    // __CC_IMAGE_H__

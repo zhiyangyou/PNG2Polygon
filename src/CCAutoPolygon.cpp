@@ -29,9 +29,10 @@ THE SOFTWARE.
 #include "clipper/clipper.hpp"
 
 #include "CCAutoPolygon.h"
-#include "CCImage.h"
+#include "PNGImage.h"
 #include "CCGeometry.h"
 #include "Vec2.h"
+#include "AbsImage.h"
 
 #include <algorithm>
 #include <cassert>
@@ -186,27 +187,19 @@ float PolygonInfo::getArea() const
 	return area;
 }
 
-AutoPolygon::AutoPolygon(const std::string& filename)
+AutoPolygon::AutoPolygon(AbsImage* image)
 	:_image(nullptr)
 	, _data(nullptr)
-	, _filename(filename)
 	, _width(0)
 	, _height(0)
 	, _scaleFactor(0)
 {
 
-	_image = new (std::nothrow) Image(filename);
-	//assert(_image->getPixelFormat()==backend::PixelFormat::RGBA8888, "unsupported format, currently only supports rgba8888");
+	_image = image;
 	_data = _image->getData();
 	_width = _image->getWidth();
 	_height = _image->getHeight();
-	//_scaleFactor = Director::getInstance()->getContentScaleFactor();
 	_scaleFactor = 1.0f;
-}
-
-AutoPolygon::~AutoPolygon()
-{
-	CC_SAFE_DELETE(_image);
 }
 
 std::vector<Vec2> AutoPolygon::trace(const Rect& rect, float threshold)
@@ -726,12 +719,12 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	auto tri = triangulate(p);
 	calculateUV(realRect, tri.verts, tri.vertCount);
 	infoForFill.triangles = tri;
-	infoForFill.setFilename(_filename);
+	infoForFill.setFilename(_image->getFileName());
 	infoForFill.setRect(realRect);
 }
 
-PolygonInfo AutoPolygon::generatePolygon(const std::string& filename, const Rect& rect, float epsilon, float threshold)
+PolygonInfo AutoPolygon::generatePolygon(AbsImage* image, const Rect& rect, float epsilon, float threshold)
 {
-	AutoPolygon ap(filename);
+	AutoPolygon ap(image);
 	return ap.generateTriangles(rect, epsilon, threshold);
 }

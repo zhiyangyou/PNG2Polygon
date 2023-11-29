@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include "CCAutoPolygon.h"
+#include "PNGImage.h"
+
 void print2File(PolygonInfo& info, const char* filename)
 {
 	std::ofstream outputFile(filename);
@@ -25,8 +27,8 @@ void print2File(PolygonInfo& info, const char* filename)
 int main()
 {
 	std::cout << "Hello World!\n";
-
-	AutoPolygon p("testImages/1.png");
+	PNGImage img("testImages/1.png");
+	AutoPolygon p(&img);
 
 	for (int i = 1; i <= 50; ++i)
 	{

@@ -18,6 +18,28 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\CCAutoPolygon.h" />
+    <ClInclude Include="..\..\src\CCGeometry.h" />
+    <ClInclude Include="..\..\src\CCImage.h" />
+    <ClInclude Include="..\..\src\ccTypes.h" />
+    <ClInclude Include="..\..\src\stb_image.h" />
+    <ClInclude Include="..\..\src\Vec2.h" />
+    <ClInclude Include="..\..\src\Vec3.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\CCAutoPolygon.cpp" />
+    <ClCompile Include="..\..\src\CCGeometry.cpp" />
+    <ClCompile Include="..\..\src\CCImage.cpp" />
+    <ClCompile Include="..\..\src\clipper\clipper.cpp" />
+    <ClCompile Include="..\..\src\poly2tri\common\shapes.cc" />
+    <ClCompile Include="..\..\src\poly2tri\sweep\advancing_front.cc" />
+    <ClCompile Include="..\..\src\poly2tri\sweep\cdt.cc" />
+    <ClCompile Include="..\..\src\poly2tri\sweep\sweep.cc" />
+    <ClCompile Include="..\..\src\poly2tri\sweep\sweep_context.cc" />
+    <ClCompile Include="..\..\src\Vec2.cpp" />
+    <ClCompile Include="..\..\src\Vec3.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -70,6 +92,14 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)..\..\src;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)..\..\Unity\Plugin\win32</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)..\..\src;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)..\..\Unity\Plugin\win32</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
