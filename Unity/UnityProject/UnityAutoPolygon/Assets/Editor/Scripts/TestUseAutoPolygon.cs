@@ -61,7 +61,7 @@ namespace App.Utils
                                 w, h,
                                 Marshal.StringToHGlobalAnsi(tex.name),
                                 0f, 0f, 0f, 0f,
-                                10.0f, 1.0f,
+                                20.0f, 0f,
                                 Marshal.GetFunctionPointerForDelegate(callback));
                             CreateGo(verts, indices);
                             Debug.LogError($"ret is {ret}");
