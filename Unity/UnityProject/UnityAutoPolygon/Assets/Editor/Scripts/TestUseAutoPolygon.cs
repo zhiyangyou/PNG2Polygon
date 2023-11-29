@@ -61,7 +61,7 @@ namespace App.Utils
                                 w, h,
                                 Marshal.StringToHGlobalAnsi(tex.name),
                                 0f, 0f, 0f, 0f,
-                                20.0f, 0f,
+                                2.0f, 0f,
                                 Marshal.GetFunctionPointerForDelegate(callback));
                             CreateGo(verts, indices);
                             Debug.LogError($"ret is {ret}");
@@ -86,6 +86,7 @@ namespace App.Utils
             go.name = "testGenGo";
             var mf = go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();
+            go.transform.localScale = new Vector3(1, 1, -1);
             var mesh = new Mesh();
             List<Vector3> listVerts = new List<Vector3>();
             List<ushort> listIndex = new List<ushort>();
