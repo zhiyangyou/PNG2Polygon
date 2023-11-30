@@ -1,7 +1,6 @@
 #pragma once
 #include "AbsImage.h"
 
-
 class UnityImage : public  AbsImage
 {
 

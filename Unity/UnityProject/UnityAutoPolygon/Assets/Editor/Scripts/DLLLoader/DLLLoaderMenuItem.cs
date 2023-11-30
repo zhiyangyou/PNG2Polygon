@@ -32,7 +32,7 @@ namespace App.Utils
             }
             else
             {
-                Debug.LogError("卸载Dll成功");
+                Debug.Log("卸载Dll成功");
             }
         }
     }
