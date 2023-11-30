@@ -33,6 +33,7 @@
     <ClCompile Include="..\..\src\CCAutoPolygon.cpp" />
     <ClCompile Include="..\..\src\CCGeometry.cpp" />
     <ClCompile Include="..\..\src\clipper\clipper.cpp" />
+    <ClCompile Include="..\..\src\PNGImage.cpp" />
     <ClCompile Include="..\..\src\poly2tri\common\shapes.cc" />
     <ClCompile Include="..\..\src\poly2tri\sweep\advancing_front.cc" />
     <ClCompile Include="..\..\src\poly2tri\sweep\cdt.cc" />

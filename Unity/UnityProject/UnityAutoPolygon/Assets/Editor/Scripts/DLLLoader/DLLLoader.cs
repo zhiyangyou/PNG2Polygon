@@ -74,6 +74,7 @@ namespace App.Utils
 
         public static bool CloseLibrary()
         {
+            Debug.Log("freeLibrary");
             var ret = FreeLibrary(_dllHandle);
             _hasLoaded = !ret;
             return ret;

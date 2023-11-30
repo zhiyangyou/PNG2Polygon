@@ -1,7 +1,7 @@
 {
     "name": "YzyEditor",
     "rootNamespace": "",
-    "references": [],
+    "references": ["GUID:0cfe9b69e9522604fb7a787f71975be8"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,

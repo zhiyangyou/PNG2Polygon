@@ -43,6 +43,8 @@
   <ItemGroup>
      <Folder Include="Assets" />
      <Folder Include="Library\BuildInstructions" />
+     <Folder Include="Assets\TestImages\test2" />
+     <Folder Include="Assets\TestImages\maincity" />
      <Folder Include="Assets\Runtime" />
      <Folder Include="Assets\Scenes" />
      <Folder Include="Assets\TestImages" />
