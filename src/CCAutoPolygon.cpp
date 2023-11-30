@@ -38,6 +38,7 @@ THE SOFTWARE.
 #include <cassert>
 #include <cmath>
 
+#include <opencv2/opencv.hpp>
 
 #define CC_SAFE_DELETE(p)           do { delete (p); (p) = nullptr; } while(0)
 #define CC_SAFE_DELETE_ARRAY(p)     do { if(p) { delete[] (p); (p) = nullptr; } } while(0)
@@ -60,7 +61,7 @@ static unsigned short quadIndices9[] = {
 };
 
 const static float PRECISION = 10.0f;
-
+Triangles Merge(std::vector<Triangles> &list, bool releasListTriMemory);
 PolygonInfo::PolygonInfo()
 	: _isVertsOwner(true)
 	, _rect(Rect::ZERO)
@@ -202,10 +203,69 @@ AutoPolygon::AutoPolygon(AbsImage* image)
 	_scaleFactor = 1.0f;
 }
 
-std::vector<Vec2> AutoPolygon::trace(const Rect& rect, float threshold)
+template <typename T>
+void copyVector(const std::vector<T>& source, std::vector<T>& target) {
+	target = source;
+}
+
+std::vector<std::vector<Vec2>> AutoPolygon::trace(const Rect& rect, float threshold)
 {
+	std::vector< std::vector<Vec2>> ret;
 	Vec2 first = findFirstNoneTransparentPixel(rect, threshold);
-	return marchSquare(rect, first, threshold);
+	std::vector<Vec2> v = marchSquare(rect, first, threshold);
+	ret.push_back(v);
+	return ret;
+}
+#define _cv_debug_yzy 1
+	
+std::vector<std::vector<Vec2>>  AutoPolygon::traceByCV(const Rect& rect, float threshold)
+{
+	std::vector<std::vector<Vec2>> ret;
+	cv::Mat image = cv::imread(this->_image->getFileName(), cv::IMREAD_UNCHANGED);
+	if (image.empty()) {
+		std::cerr << "Error: Could not read the image." << std::endl;
+		return  ret;
+	}
+	// 分割 alpha 通道
+	std::vector<cv::Mat> channels;
+	cv::split(image, channels);
+
+	// 阈值化 alpha 通道
+	cv::Mat thresholded;
+	cv::threshold(channels[3], thresholded, threshold, 255, cv::THRESH_BINARY);
+#if _cv_debug_yzy
+	cv::imshow("thresholded",thresholded);
+#endif
+	
+	// 寻找轮廓
+	std::vector<std::vector<cv::Point>> contours;
+	// cv::findContours(thresholded, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+	cv::findContours(thresholded, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+	// cv::findContours(thresholded, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_TC89_KCOS);
+	// cv::findContours(thresholded, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+#if _cv_debug_yzy
+	// 创建一个黑色的图像作为绘制背景
+	cv::Mat drawing = cv::Mat::zeros(thresholded.size(), CV_8UC3);
+#endif
+	
+	for (size_t i = 0; i < contours.size(); ++i) {
+#if _cv_debug_yzy
+		cv::drawContours(drawing, contours, static_cast<int>(i), cv::Scalar(0, 255, 0), 2);
+#endif
+		std::vector<cv::Point>& contourPoints = contours[i];
+		// 打印轮廓中的点集 
+		std::vector<Vec2> v;
+		for (const auto& point : contourPoints) {
+			v.push_back(Vec2(point.x,point.y));
+		}
+		ret.push_back(v);
+	}
+	
+#if _cv_debug_yzy
+	cv::imshow("drawContours",drawing);
+#endif
+	
+	return ret;
 }
 
 Vec2 AutoPolygon::findFirstNoneTransparentPixel(const Rect& rect, float threshold)
@@ -260,7 +320,7 @@ unsigned int AutoPolygon::getSquareValue(unsigned int x, unsigned int y, const R
 	sv += (fixedRect.containsPoint(bl) && getAlphaByPos(bl) > threshold) ? 4 : 0;
 	Vec2 br = Vec2(x - 0.0f, y - 0.0f);
 	sv += (fixedRect.containsPoint(br) && getAlphaByPos(br) > threshold) ? 8 : 0;
-	assert(sv != 0 && sv != 15, "square value should not be 0, or 15");
+	// assert(sv != 0 && sv != 15, "square value should not be 0, or 15");
 	return sv;
 }
 
@@ -425,9 +485,9 @@ std::vector<Vec2> AutoPolygon::marchSquare(const Rect& rect, const Vec2& start, 
 		const auto totalPixel = _width * _height;
 		assert(count <= totalPixel, "oh no, marching square cannot find starting position");
 #endif
-	} while (curx != startx || cury != starty);
-	return _points;
-}
+		} while (curx != startx || cury != starty);
+		return _points;
+	}
 
 float AutoPolygon::perpendicularDistance(const Vec2& i, const Vec2& start, const Vec2& end)
 {
@@ -573,7 +633,7 @@ std::vector<Vec2> AutoPolygon::expand(const std::vector<Vec2>& points, const Rec
 	return outPoints;
 }
 
-Triangles AutoPolygon::triangulate(const std::vector<Vec2>& points)
+Triangles AutoPolygon::triangulate(const std::vector<Vec2>& points,Triangles& tri)
 {
 	// if there are less than 3 points, then we can't triangulate
 	if (points.size() < 3)
@@ -649,6 +709,7 @@ Triangles AutoPolygon::triangulate(const std::vector<Vec2>& points)
 	// Triangles should really use std::vector and not arrays for verts and indices. 
 	// Then the above memcpy would not be necessary
 	Triangles triangles = { vertsBuf, indicesBuf, (unsigned int)verts.size(), (unsigned int)indices.size() };
+	tri = triangles;
 	return triangles;
 }
 
@@ -710,14 +771,54 @@ PolygonInfo AutoPolygon::generateTriangles(const Rect& rect, float epsilon, floa
 	return ret;
 }
 
+void drawCVTriangle(cv::Mat& image,Triangles &tri ,const Rect& rect ,int i)
+{
+	// 定义三角形的三个顶点
+	std::vector<cv::Point> trianglePoints;
+	for (int i = 0; i < tri.indexCount; i++)
+	{
+		unsigned short index = tri.indices[i];
+		Vec3 p = tri.verts[index].vertices;
+		trianglePoints.push_back(cv::Point(p.x, p.y));
+	}
+	// trianglePoints.push_back(cv::Point(150, 50));
+	// trianglePoints.push_back(cv::Point(50, 250));
+	// trianglePoints.push_back(cv::Point(250, 250));
+
+	// 绘制三角形
+	cv::polylines(image, trianglePoints, true, cv::Scalar(0, 255, 0), 1, cv::LINE_AA);
+
+	char buf [128];
+	sprintf_s(buf,sizeof(buf),"Triangle" );
+	// 显示绘制结果
+	cv::imshow(buf, image);
+	
+}
+
 void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /*= Rect::ZERO*/, float epsilon /*= 2.0f*/, float threshold /*= 0.05f*/)
 {
 	Rect realRect = getRealRect(rect);
-	auto p = trace(realRect, threshold);
-	p = reduce(p, realRect, epsilon);
-	p = expand(p, realRect, epsilon);
-	auto tri = triangulate(p);
-	calculateUV(realRect, tri.verts, tri.vertCount);
+	// auto ps = trace(realRect, threshold); std::cout<<"bynormal\n";
+	auto ps = traceByCV(realRect, threshold); // std::cout<<"bycv\n";
+	std::vector<Triangles> listTri;
+	int count = 0;
+#if _cv_debug_yzy
+	cv::Mat imageOrigin = cv::imread(this->_image->getFileName(), cv::IMREAD_UNCHANGED| cv::IMREAD_COLOR);
+#endif 
+	for (std::vector<Vec2>& p : ps)
+	{ 
+		std::vector<Vec2> tempP = p;
+		tempP = reduce(tempP, realRect, epsilon);
+		tempP = expand(tempP, realRect, epsilon);
+		Triangles tri;
+		triangulate(tempP,tri);
+		calculateUV(realRect, tri.verts, tri.vertCount);
+		listTri.push_back(tri);
+#if _cv_debug_yzy
+		drawCVTriangle(imageOrigin, tri, realRect,count++);
+#endif
+	}
+	Triangles tri = Merge(listTri, true);
 	infoForFill.triangles = tri;
 	infoForFill.setFilename(_image->getFileName());
 	infoForFill.setRect(realRect);
@@ -727,4 +828,54 @@ PolygonInfo AutoPolygon::generatePolygon(AbsImage* image, const Rect& rect, floa
 {
 	AutoPolygon ap(image);
 	return ap.generateTriangles(rect, epsilon, threshold);
+}
+
+void DisposeMemory(Triangles tri)
+{
+	CC_SAFE_DELETE_ARRAY(tri.indices);
+	CC_SAFE_DELETE_ARRAY(tri.verts);
+}
+
+Triangles Merge(std::vector<Triangles> &list, bool releasListTriMemory)
+{
+	int totalVS = 0;
+	int totalIndex = 0;
+	Triangles ret;
+	for (int i = 0; i < list.size(); i++)
+	{
+		Triangles tri = list[i];
+		totalVS += tri.vertCount;	
+		totalIndex += tri.indexCount;	
+	}
+	ret.vertCount = totalVS;
+	ret.indexCount = totalIndex;
+	ret.verts = new (std::nothrow) V3F_C4B_T2F[totalVS];
+	ret.indices = new (std::nothrow) unsigned short[totalIndex];
+	int indexOffset = 0 ;
+
+	int vsAddCount = 0;
+	int indexAddCount = 0;
+	for (int i = 0; i < list.size(); i++)
+	{
+		Triangles tri = list[i];
+
+		for ( int ii = 0; ii < tri.vertCount; ii++)
+		{
+			*(ret.verts + vsAddCount) = tri.verts[ii];
+			vsAddCount++;
+		}
+
+		for ( int ii = 0; ii < tri.indexCount; ii++)
+		{
+			*(ret.indices + indexAddCount) = tri.indices[ii];
+			indexAddCount++;
+		}
+		
+		indexOffset += tri.indexCount;
+		if (releasListTriMemory)
+		{
+			DisposeMemory(tri);
+		}
+	}
+	return ret;
 }

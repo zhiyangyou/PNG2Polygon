@@ -67,8 +67,16 @@ public class YourMonoBehaviorEditor : Editor
     private bool GetMeshData(Texture2D tex, float epsilon, float alpha_thresold, List<Vector3> listVerts, List<Vector2> listUVs, List<ushort> listIndex)
     {
         Color32[] cols = tex.GetPixels32();
-        var ret = ExportFuncDef.AutoPolygonGenerat(cols, tex.width, tex.height, tex.name, epsilon, alpha_thresold, listVerts, listUVs, listIndex);
+
+        var ret = ExportFuncDef.AutoPolygonGenerat(cols, tex.width, tex.height, ConvertAssetPath2FullPath(tex), epsilon, alpha_thresold, listVerts, listUVs,
+            listIndex);
         return ret == 0;
+    }
+
+    private string ConvertAssetPath2FullPath(UnityEngine.Object obj)
+    {
+        var assetPath = AssetDatabase.GetAssetPath(obj);
+        return ConvertAssetPath2FullPath(assetPath);
     }
 
     private string ConvertAssetPath2FullPath(string assetPath)

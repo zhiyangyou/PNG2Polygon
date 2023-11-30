@@ -29,8 +29,7 @@ namespace App.Utils
                 {
                     string dllFullPath = Application.dataPath + "";
                     DirectoryInfo dir = new DirectoryInfo(dllFullPath);
-                    DirectoryInfo dirDllDir = new DirectoryInfo(dir.Parent.Parent.Parent.FullName + "/Plugin/win32");
-                    FileInfo fileInfo = new FileInfo(dirDllDir.GetFiles().Where(info => info.FullName.EndsWith(".dll")).First().FullName);
+                    FileInfo fileInfo = new FileInfo(dir.Parent.Parent.Parent.FullName + "/Plugin/win32/AutoPolygonDLL.dll" );
                     _dllPath = fileInfo.FullName;
                 }
 

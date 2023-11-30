@@ -97,12 +97,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)..\..\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\Unity\Plugin\win32</OutDir>
+    <LibraryPath>$(SolutionDir)..\..\src\opencv\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)..\..\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\Unity\Plugin\win32</OutDir>
+    <LibraryPath>$(SolutionDir)..\..\src\opencv\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -147,12 +149,20 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <UndefinePreprocessorDefinitions>_cv_debug_yzy</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>opencv_world480d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)\..\..\src\opencv\bin\*" "$(TargetDir)" /Y /S</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>拷贝dll</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -165,6 +175,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <UndefinePreprocessorDefinitions>_cv_debug_yzy</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -172,7 +183,14 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>opencv_world480.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)\..\..\src\opencv\bin\*" "$(TargetDir)" /Y /S</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>拷贝dll</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

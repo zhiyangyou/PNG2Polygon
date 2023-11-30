@@ -31,6 +31,7 @@ THE SOFTWARE.
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "Vec2.h"
 #include "CCGeometry.h"
 #include "ccTypes.h"
@@ -47,6 +48,13 @@ struct Triangles
 	{}
 
 	Triangles() {}
+	// Triangles(const Triangles & o)
+	// {
+	// 	this->verts = o.verts;
+	// 	this->indices = o.indices;
+	// 	this->vertCount = o.vertCount;
+	// 	this->indexCount = o.indexCount;
+	// }
 
 	/**Vertex data pointer.*/
 	V3F_C4B_T2F* verts = nullptr;
@@ -56,6 +64,10 @@ struct Triangles
 	unsigned int vertCount = 0;
 	/**The number of indices.*/
 	unsigned int indexCount = 0;
+
+	// static void DisposeMemory(Triangles tri);
+	//
+	// static Triangles Merge(std::vector<Triangles> &list, bool autoRelease);
 };
 
 
@@ -191,7 +203,8 @@ public:
 	 * std::vector<Vec2> points = ap.trace(rect);//default threshold is 0.0
 	 * @endcode
 	 */
-	std::vector<Vec2> trace(const Rect& rect, float threshold = 0.0f);
+	std::vector<std::vector<Vec2>> trace(const Rect& rect, float threshold = 0.0f);
+	std::vector<std::vector<Vec2>> traceByCV(const Rect& rect, float threshold = 0.0f);
 
 	/**
 	 * reduce the amount of points so its faster for GPU to process and draw
@@ -232,7 +245,7 @@ public:
 	 * Triangles myPolygons = ap.triangulate(myPoints);
 	 * @endcode
 	 */
-	Triangles triangulate(const std::vector<Vec2>& points);
+	Triangles triangulate(const std::vector<Vec2>& points,Triangles& tri);
 
 	/**
 	 * calculate the UV coordinates for each points based on a texture rect
