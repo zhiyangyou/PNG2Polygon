@@ -60,6 +60,11 @@ static unsigned short quadIndices9[] = {
 	0 + 4 * 8,1 + 4 * 8,2 + 4 * 8, 3 + 4 * 8,2 + 4 * 8,1 + 4 * 8,
 };
 
+
+// 判断两个点是否相同 
+#define TPPLPointIsEq(p1,p2)   (p1).x == (p2).x && (p1).y == (p2).y
+ 
+
 const static float PRECISION = 10.0f;
 Triangles Merge(std::vector<Triangles> &list, bool releasListTriMemory);
 PolygonInfo::PolygonInfo()
@@ -731,22 +736,70 @@ void AutoPolygon::triangulateByPolypartition(const std::vector<Vec2>& points,Tri
 	}
 	else
 	{
-		//int triNum = triangles.size();
-		//int indeSize = triangles.size() * 3;
-		//int vertNum = 0;
-		//tri.verts = new (std::nothrow)V3F_C4B_T2F[??];
-		//tri.indices = new (std::nothrow)unsigned short[indeSize];
-		//tri.indexCount =indeSize;
-		//
-		//for (TPPLPoly polyPoint : triangles)
-		//{
-		//	for (int i = 0; i < polyPoint.GetNumPoints();i ++)
-		//	{
-		//		TPPLPoint p = polyPoint.GetPoint(i);
-		//		 
-		//	}	 
-		//}
+		//TODO 优化 将list模式的三角形转换成index模式
+
+		std::vector<TPPLPoint> uniquePoints;
+		for (TPPLPoly polyPoint : triangles)
+		{
+			for (int i = 0; i < polyPoint.GetNumPoints(); i++)
+			{
+				TPPLPoint currentPoint = polyPoint.GetPoint(i);
+				auto it = std::find_if(uniquePoints.begin(), uniquePoints.end(),
+					[&currentPoint](const TPPLPoint& p) { return TPPLPointIsEq(p, currentPoint); });
+
+				if (it == uniquePoints.end()) {
+					uniquePoints.push_back(currentPoint);
+				}
+			}
+		}
+
+		int triNum = triangles.size();
+		int indexSize = triangles.size() * 3;
+		int vertNum = uniquePoints.size();
+		tri.verts = new (std::nothrow)V3F_C4B_T2F[vertNum];
+		tri.indices = new (std::nothrow)unsigned short[indexSize];
+		tri.indexCount =indexSize;
+
+		int index = 0;
+		int foundIndex = 0;
+		bool foundInUniqueVec = false;
+		for (TPPLPoly polyPoint : triangles)
+		{
+			for (int i = 0; i < polyPoint.GetNumPoints(); i++)
+			{
+				TPPLPoint currentPoint = polyPoint.GetPoint(i);
+				foundInUniqueVec = false;
+				foundIndex = 0;
+				for (int ii = 0; ii < uniquePoints.size(); ii++)
+				{
+					if (TPPLPointIsEq(currentPoint, uniquePoints[ii]))
+					{
+						foundInUniqueVec = true;
+						foundIndex = ii;
+					}
+				}
+				if (foundInUniqueVec)
+				{
+					tri.indices[index] = foundIndex;
+				}
+				else
+				{
+					throw std::runtime_error(" impossible happend can't find point in uniquePoints ");
+				}
+				index ++;
+			}
+		}
+		float imageW = this->_image->getWidth();
+		float imageH = this->_image->getHeight();
+		for (int i = 0; i < uniquePoints.size(); i++)
+		{
+			auto& p = uniquePoints[i];
+			tri.verts[i].colors = Color4B();
+			tri.verts[i].vertices = Vec3(p.x,p.y,0.0f);
+			tri.verts[i].texCoords = { (float)p.x / imageW, (float)p.y / imageH };
+		}
 		
+
 	}
 }
 
@@ -865,7 +918,7 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 		listTri.push_back(tri);
 #ifdef _cv_debug_yzy
 		// drawCVPoints(imgOrigin1,"reduce-expand",tempReduce,count,cv::Scalar(0, 255, 0));
-		 drawCVPoints(imgOrigin1,"reduce-expand",tempExpand,count,cv::Scalar(255, 0, 0));
+		 //drawCVPoints(imgOrigin1,"reduce-expand",tempExpand,count,cv::Scalar(255, 0, 0));
 		drawCVTriangle( imgOrigin1,"reduce-expand", tri, realRect,count++,cv::Scalar(0, 255, 255));
 #endif
 	}
