@@ -19,6 +19,9 @@
     <Filter Include="源文件\poly2tri">
       <UniqueIdentifier>{c27805a9-b061-4bb5-91d0-9b1725ab86fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\polypartition">
+      <UniqueIdentifier>{308dae92-d0cf-4995-8ed5-d3675d167900}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ccTypes.h">
@@ -47,6 +50,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\UnityExport.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\polypartition\polypartition.h">
+      <Filter>源文件\polypartition</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -88,6 +94,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\PNGImage.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\polypartition\polypartition.cpp">
+      <Filter>源文件\polypartition</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

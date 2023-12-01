@@ -38,29 +38,33 @@ public class YourMonoBehaviorEditor : Editor
         poly.isDrawGizmos = EditorGUILayout.Toggle("gizmos", poly.isDrawGizmos);
         poly.epsilon = EditorGUILayout.Slider("epsilon", poly.epsilon, 1.0f, 100.0f);
         poly.alphaThreshold = EditorGUILayout.Slider("alphaThreshold", poly.alphaThreshold, 0f, 128f);
-        var needFreshEditor = false;
         if (EditorGUI.EndChangeCheck())
         {
-            Texture2D tex = poly.texMaintexture as Texture2D;
-            if (tex)
-            {
-                needFreshEditor = true;
-                if (GetMeshData(tex, poly.epsilon, poly.alphaThreshold, _listVerts, _listUVs, _listIndex))
-                {
-                    poly.UpdateMeshData(_listVerts, _listUVs, _listIndex);
-                    poly.UpdateMainTexture();
-                }
-            }
-            else
-            {
-                Debug.LogError("没有得到texture2D 错误");
-            }
-
+            RefreshMesh();
             EditorUtility.SetDirty(poly);
         }
 
-        if (needFreshEditor)
+        if (GUI.Button(EditorGUILayout.GetControlRect(),"RefreshMesh"))
         {
+            RefreshMesh();
+        }
+    }
+
+    private void RefreshMesh()
+    {
+        AutoPolyMesh poly = (AutoPolyMesh)target;
+        Texture2D tex = poly.texMaintexture as Texture2D;
+        if (tex)
+        {
+            if (GetMeshData(tex, poly.epsilon, poly.alphaThreshold, _listVerts, _listUVs, _listIndex))
+            {
+                poly.UpdateMeshData(_listVerts, _listUVs, _listIndex);
+                poly.UpdateMainTexture();
+            }
+        }
+        else
+        {
+            Debug.LogError("没有得到texture2D 错误");
         }
     }
 

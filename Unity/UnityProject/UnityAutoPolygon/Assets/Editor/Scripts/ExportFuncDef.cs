@@ -116,8 +116,10 @@ namespace App.Utils
                         GeometryUtils.FillData(verts, indices, listVerts, listUVs, listIndex);
                         if (needInverseTriangles)
                         {
-                            GeometryUtils.InverseTriangle(listIndex);
+                            // GeometryUtils.InverseTriangle(listIndex);
                         }
+                        // GeometryUtils.InverseUV_V(listUVs);
+                        GeometryUtils.InverseXY_Y(listVerts,height);
                     }
 
                     return ret;

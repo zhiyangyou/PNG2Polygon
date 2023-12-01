@@ -759,6 +759,7 @@ void AutoPolygon::triangulateByPolypartition(const std::vector<Vec2>& points,Tri
 		tri.verts = new (std::nothrow)V3F_C4B_T2F[vertNum];
 		tri.indices = new (std::nothrow)unsigned short[indexSize];
 		tri.indexCount =indexSize;
+		tri.vertCount = vertNum;
 
 		int index = 0;
 		int foundIndex = 0;
@@ -796,10 +797,8 @@ void AutoPolygon::triangulateByPolypartition(const std::vector<Vec2>& points,Tri
 			auto& p = uniquePoints[i];
 			tri.verts[i].colors = Color4B();
 			tri.verts[i].vertices = Vec3(p.x,p.y,0.0f);
-			tri.verts[i].texCoords = { (float)p.x / imageW, (float)p.y / imageH };
+			tri.verts[i].texCoords = { (float)p.x / imageW, (float)p.y / imageH }; 
 		}
-		
-
 	}
 }
 
@@ -891,7 +890,10 @@ void drawCVPoints(cv::Mat & img ,const char * name ,std::vector<Vec2>& ps,int in
 	{
 		cvPoints.push_back(cv::Point(v.x,v.y));
 	}
-	Contours.push_back(cvPoints);
+	if (cvPoints.size() > 0)
+	{
+		Contours.push_back(cvPoints);
+	}
 	cv::drawContours(img, Contours, 0, color , 2);
 	
 	cv::imshow(name, img);
@@ -908,18 +910,19 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	cv::Mat imgPoints  (cv::Size(this->_image->getWidth(),this->_image->getHeight()), CV_8UC3);
 	cv::Mat imgOrigin1 = cv::imread(this->_image->getFileName());
 #endif
-	for (std::vector<Vec2>& p : ps)
+	for (std::vector<Vec2>& pOrigin : ps)
 	{ 
-		std::vector<Vec2> tempReduce = reduce(p, realRect, epsilon);
+		std::vector<Vec2> tempReduce = reduce(pOrigin, realRect, epsilon);
 		std::vector<Vec2> tempExpand = expand(tempReduce, realRect, epsilon);
 		Triangles tri;
 		triangulateByPolypartition(tempExpand,tri);
 		calculateUV(realRect, tri.verts, tri.vertCount);
 		listTri.push_back(tri);
 #ifdef _cv_debug_yzy
-		// drawCVPoints(imgOrigin1,"reduce-expand",tempReduce,count,cv::Scalar(0, 255, 0));
-		 //drawCVPoints(imgOrigin1,"reduce-expand",tempExpand,count,cv::Scalar(255, 0, 0));
-		drawCVTriangle( imgOrigin1,"reduce-expand", tri, realRect,count++,cv::Scalar(0, 255, 255));
+		drawCVPoints(imgOrigin1,"reduce-expand",pOrigin,count,cv::Scalar(255, 255, 1));
+		drawCVPoints(imgOrigin1,"reduce-expand",tempReduce,count,cv::Scalar(0, 255, 0));
+		drawCVPoints(imgOrigin1,"reduce-expand",tempExpand,count,cv::Scalar(255, 0, 0));
+		drawCVTriangle( imgOrigin1,"reduce-expand", tri, realRect,count++,cv::Scalar(0, 0, 255));
 #endif
 	}
 	Triangles tri = Merge(listTri, true);
@@ -971,11 +974,11 @@ Triangles Merge(std::vector<Triangles> &list, bool releasListTriMemory)
 
 		for ( int ii = 0; ii < tri.indexCount; ii++)
 		{
-			*(ret.indices + indexAddCount) = tri.indices[ii];
+			*(ret.indices + indexAddCount) = tri.indices[ii] + indexOffset;
 			indexAddCount++;
 		}
 		
-		indexOffset += tri.indexCount;
+		indexOffset += tri.vertCount;
 		if (releasListTriMemory)
 		{
 			DisposeMemory(tri);

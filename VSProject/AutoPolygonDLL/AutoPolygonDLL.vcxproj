@@ -23,6 +23,7 @@
     <ClInclude Include="..\..\src\CCAutoPolygon.h" />
     <ClInclude Include="..\..\src\CCGeometry.h" />
     <ClInclude Include="..\..\src\ccTypes.h" />
+    <ClInclude Include="..\..\src\polypartition\polypartition.h" />
     <ClInclude Include="..\..\src\stb_image.h" />
     <ClInclude Include="..\..\src\UnityExport.h" />
     <ClInclude Include="..\..\src\UnityImage.h" />
@@ -39,6 +40,7 @@
     <ClCompile Include="..\..\src\poly2tri\sweep\cdt.cc" />
     <ClCompile Include="..\..\src\poly2tri\sweep\sweep.cc" />
     <ClCompile Include="..\..\src\poly2tri\sweep\sweep_context.cc" />
+    <ClCompile Include="..\..\src\polypartition\polypartition.cpp" />
     <ClCompile Include="..\..\src\UnityExport.cpp" />
     <ClCompile Include="..\..\src\UnityImage.cpp" />
     <ClCompile Include="..\..\src\Vec2.cpp" />
