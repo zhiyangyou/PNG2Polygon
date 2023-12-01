@@ -19,6 +19,9 @@
     <Filter Include="源文件\poly2tri">
       <UniqueIdentifier>{b0e18c69-a2b8-4068-b80b-8e7b30a6bef3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\polypartition">
+      <UniqueIdentifier>{69c8b7aa-f8ba-4554-82d9-6ded53f4aae1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AutoPolygonCLI.cpp">
@@ -57,6 +60,9 @@
     <ClCompile Include="..\..\src\PNGImage.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\polypartition\polypartition.cpp">
+      <Filter>源文件\polypartition</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CCAutoPolygon.h">
@@ -82,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\AbsImage.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\polypartition\polypartition.h">
+      <Filter>源文件\polypartition</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

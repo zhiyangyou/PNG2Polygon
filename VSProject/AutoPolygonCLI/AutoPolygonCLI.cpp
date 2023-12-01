@@ -37,7 +37,7 @@ int main()
 	for (int i = 1; i <= 1; ++i)
 	{
 		// int epsilon = i*2;
-		int epsilon = 10;
+		int epsilon = 3;
 		PolygonInfo info;
 		p.generateTriangles(info, Rect::ZERO, epsilon);
 		printf("epsilon: %d triangleNum: %d\tindexNum:%d\n", epsilon, info.triangles.vertCount, info.triangles.indexCount);

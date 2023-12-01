@@ -49,7 +49,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{94c78db4-61f1-4f91-b5b9-8ccec93e30c4}</ProjectGuid>
     <RootNamespace>AutoPolygonDLL</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -97,14 +97,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\Unity\Plugin\win32</OutDir>
-    <LibraryPath>$(SolutionDir)..\..\src\opencv\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\src\opencv\lib;C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\ucrt\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\Unity\Plugin\win32</OutDir>
-    <LibraryPath>$(SolutionDir)..\..\src\opencv\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\src\opencv\lib;C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\ucrt\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

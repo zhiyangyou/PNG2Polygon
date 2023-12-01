@@ -71,12 +71,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\..\src\opencv\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\Windows Kits\10\lib\10.0.22621.0\ucrt\x64;$(SolutionDir)..\..\src\opencv\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\..\src\opencv\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\Windows Kits\10\lib\10.0.22621.0\ucrt\x64;$(SolutionDir)..\..\src\opencv\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -110,7 +110,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_cv_debug_yzy</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -130,7 +130,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_cv_debug_yzy</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -158,6 +158,7 @@
     <ClCompile Include="..\..\src\poly2tri\sweep\cdt.cc" />
     <ClCompile Include="..\..\src\poly2tri\sweep\sweep.cc" />
     <ClCompile Include="..\..\src\poly2tri\sweep\sweep_context.cc" />
+    <ClCompile Include="..\..\src\polypartition\polypartition.cpp" />
     <ClCompile Include="..\..\src\Vec2.cpp" />
     <ClCompile Include="..\..\src\Vec3.cpp" />
     <ClCompile Include="AutoPolygonCLI.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="..\..\src\CCGeometry.h" />
     <ClInclude Include="..\..\src\ccTypes.h" />
     <ClInclude Include="..\..\src\PNGImage.h" />
+    <ClInclude Include="..\..\src\polypartition\polypartition.h" />
     <ClInclude Include="..\..\src\stb_image.h" />
     <ClInclude Include="..\..\src\Vec2.h" />
     <ClInclude Include="..\..\src\Vec3.h" />

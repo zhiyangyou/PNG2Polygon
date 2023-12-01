@@ -27,7 +27,7 @@ THE SOFTWARE.
 ****************************************************************************/
 #include "poly2tri/poly2tri.h"
 #include "clipper/clipper.hpp"
-
+#include "polypartition/polypartition.h"
 #include "CCAutoPolygon.h"
 #include "PNGImage.h"
 #include "CCGeometry.h"
@@ -216,8 +216,7 @@ std::vector<std::vector<Vec2>> AutoPolygon::trace(const Rect& rect, float thresh
 	ret.push_back(v);
 	return ret;
 }
-#define _cv_debug_yzy 1
-	
+ 	
 std::vector<std::vector<Vec2>>  AutoPolygon::traceByCV(const Rect& rect, float threshold)
 {
 	std::vector<std::vector<Vec2>> ret;
@@ -233,8 +232,8 @@ std::vector<std::vector<Vec2>>  AutoPolygon::traceByCV(const Rect& rect, float t
 	// 阈值化 alpha 通道
 	cv::Mat thresholded;
 	cv::threshold(channels[3], thresholded, threshold, 255, cv::THRESH_BINARY);
-#if _cv_debug_yzy
-	cv::imshow("thresholded",thresholded);
+#ifdef _cv_debug_yzy
+	// cv::imshow("thresholded",thresholded);
 #endif
 	
 	// 寻找轮廓
@@ -243,13 +242,13 @@ std::vector<std::vector<Vec2>>  AutoPolygon::traceByCV(const Rect& rect, float t
 	cv::findContours(thresholded, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 	// cv::findContours(thresholded, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_TC89_KCOS);
 	// cv::findContours(thresholded, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
-#if _cv_debug_yzy
+#ifdef _cv_debug_yzy
 	// 创建一个黑色的图像作为绘制背景
 	cv::Mat drawing = cv::Mat::zeros(thresholded.size(), CV_8UC3);
 #endif
 	
 	for (size_t i = 0; i < contours.size(); ++i) {
-#if _cv_debug_yzy
+#ifdef _cv_debug_yzy
 		cv::drawContours(drawing, contours, static_cast<int>(i), cv::Scalar(0, 255, 0), 2);
 #endif
 		std::vector<cv::Point>& contourPoints = contours[i];
@@ -261,8 +260,8 @@ std::vector<std::vector<Vec2>>  AutoPolygon::traceByCV(const Rect& rect, float t
 		ret.push_back(v);
 	}
 	
-#if _cv_debug_yzy
-	cv::imshow("drawContours",drawing);
+#ifdef _cv_debug_yzy
+	// cv::imshow("drawContours",drawing);
 #endif
 	
 	return ret;
@@ -713,6 +712,44 @@ Triangles AutoPolygon::triangulate(const std::vector<Vec2>& points,Triangles& tr
 	return triangles;
 }
 
+void AutoPolygon::triangulateByPolypartition(const std::vector<Vec2>& points,Triangles& tri)
+{
+	TPPLPolyList triangles;
+	TPPLPoly poly;
+	poly.Init(points.size());
+	for (int i = 0; i < points.size(); i++)
+	{
+		Vec2 p = points[i];
+		poly.GetPoints()[i] = {p.x,p.y}; 
+	}
+	TPPLPartition tpp;
+	
+	if (!tpp.Triangulate_OPT(&poly,&triangles))
+	{
+		tri.vertCount = 0;
+		tri.indexCount = 0;
+	}
+	else
+	{
+		//int triNum = triangles.size();
+		//int indeSize = triangles.size() * 3;
+		//int vertNum = 0;
+		//tri.verts = new (std::nothrow)V3F_C4B_T2F[??];
+		//tri.indices = new (std::nothrow)unsigned short[indeSize];
+		//tri.indexCount =indeSize;
+		//
+		//for (TPPLPoly polyPoint : triangles)
+		//{
+		//	for (int i = 0; i < polyPoint.GetNumPoints();i ++)
+		//	{
+		//		TPPLPoint p = polyPoint.GetPoint(i);
+		//		 
+		//	}	 
+		//}
+		
+	}
+}
+
 void AutoPolygon::calculateUV(const Rect& rect, V3F_C4B_T2F* verts, size_t count)
 {
 	/*
@@ -771,7 +808,7 @@ PolygonInfo AutoPolygon::generateTriangles(const Rect& rect, float epsilon, floa
 	return ret;
 }
 
-void drawCVTriangle(cv::Mat& image,Triangles &tri ,const Rect& rect ,int i)
+void drawCVTriangle( cv::Mat & imageTri,const char * name ,Triangles &tri ,const Rect& rect ,int i,cv::Scalar color)
 {
 	// 定义三角形的三个顶点
 	std::vector<cv::Point> trianglePoints;
@@ -781,18 +818,30 @@ void drawCVTriangle(cv::Mat& image,Triangles &tri ,const Rect& rect ,int i)
 		Vec3 p = tri.verts[index].vertices;
 		trianglePoints.push_back(cv::Point(p.x, p.y));
 	}
-	// trianglePoints.push_back(cv::Point(150, 50));
-	// trianglePoints.push_back(cv::Point(50, 250));
-	// trianglePoints.push_back(cv::Point(250, 250));
-
 	// 绘制三角形
-	cv::polylines(image, trianglePoints, true, cv::Scalar(0, 255, 0), 1, cv::LINE_AA);
+	// cv::polylines(image, trianglePoints, true, cv::Scalar(0,255,0), 2, cv::LINE_AA); 
+	cv::polylines(imageTri, trianglePoints, true,  color, 1, cv::LINE_AA); 
 
 	char buf [128];
-	sprintf_s(buf,sizeof(buf),"Triangle" );
+	sprintf_s(buf,sizeof(buf),"img+Triangle%d",i );
 	// 显示绘制结果
-	cv::imshow(buf, image);
+	// cv::imshow("Triangle", image); 
+	cv::imshow(name, imageTri); 
+}
+
+void drawCVPoints(cv::Mat & img ,const char * name ,std::vector<Vec2>& ps,int index,cv::Scalar color)
+{
+	// 定义三角形的三个顶点
+	std::vector<cv::Point> cvPoints;
+	std::vector<std::vector<cv::Point>>  Contours;
+	for (auto v: ps)
+	{
+		cvPoints.push_back(cv::Point(v.x,v.y));
+	}
+	Contours.push_back(cvPoints);
+	cv::drawContours(img, Contours, 0, color , 2);
 	
+	cv::imshow(name, img);
 }
 
 void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /*= Rect::ZERO*/, float epsilon /*= 2.0f*/, float threshold /*= 0.05f*/)
@@ -802,20 +851,22 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	auto ps = traceByCV(realRect, threshold); // std::cout<<"bycv\n";
 	std::vector<Triangles> listTri;
 	int count = 0;
-#if _cv_debug_yzy
-	cv::Mat imageOrigin = cv::imread(this->_image->getFileName(), cv::IMREAD_UNCHANGED| cv::IMREAD_COLOR);
-#endif 
+#ifdef _cv_debug_yzy
+	cv::Mat imgPoints  (cv::Size(this->_image->getWidth(),this->_image->getHeight()), CV_8UC3);
+	cv::Mat imgOrigin1 = cv::imread(this->_image->getFileName());
+#endif
 	for (std::vector<Vec2>& p : ps)
 	{ 
-		std::vector<Vec2> tempP = p;
-		tempP = reduce(tempP, realRect, epsilon);
-		tempP = expand(tempP, realRect, epsilon);
+		std::vector<Vec2> tempReduce = reduce(p, realRect, epsilon);
+		std::vector<Vec2> tempExpand = expand(tempReduce, realRect, epsilon);
 		Triangles tri;
-		triangulate(tempP,tri);
+		triangulateByPolypartition(tempExpand,tri);
 		calculateUV(realRect, tri.verts, tri.vertCount);
 		listTri.push_back(tri);
-#if _cv_debug_yzy
-		drawCVTriangle(imageOrigin, tri, realRect,count++);
+#ifdef _cv_debug_yzy
+		// drawCVPoints(imgOrigin1,"reduce-expand",tempReduce,count,cv::Scalar(0, 255, 0));
+		 drawCVPoints(imgOrigin1,"reduce-expand",tempExpand,count,cv::Scalar(255, 0, 0));
+		drawCVTriangle( imgOrigin1,"reduce-expand", tri, realRect,count++,cv::Scalar(0, 255, 255));
 #endif
 	}
 	Triangles tri = Merge(listTri, true);
