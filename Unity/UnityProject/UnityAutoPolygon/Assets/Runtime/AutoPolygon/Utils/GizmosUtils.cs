@@ -40,7 +40,8 @@ namespace App.Utils.InspectorEditor
         public static void DrawMeshTriArea(List<Vector3> vertices, List<ushort> triangles, Transform transform)
         {
             Color oldColor = UnityEditor.Handles.color;
-            UnityEditor.Handles.color = new Color(0f, 0f, 1f, 0.07f);
+            // UnityEditor.Handles.color = new Color(0f, 0f, 1f, 0.07f);
+            UnityEditor.Handles.color = new Color(255f / 255f, 191 / 255f, 0, 0.2f);
 
             for (int i = 0; i < triangles.Count; i += 3)
             {
