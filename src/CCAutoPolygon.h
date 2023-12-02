@@ -65,9 +65,9 @@ struct Triangles
 	/**The number of indices.*/
 	unsigned int indexCount = 0;
 
-	// static void DisposeMemory(Triangles tri);
+	// static void DisposeTriangleMemory(Triangles tri);
 	//
-	// static Triangles Merge(std::vector<Triangles> &list, bool autoRelease);
+	// static Triangles MergeTriangles(std::vector<Triangles> &list, bool autoRelease);
 };
 
 
@@ -204,7 +204,7 @@ public:
 	 * @endcode
 	 */
 	std::vector<std::vector<Vec2>> trace(const Rect& rect, float threshold = 0.0f);
-	std::vector<std::vector<Vec2>> traceByCV(const Rect& rect, float threshold = 0.0f);
+	std::vector<std::vector<Vec2>> traceByCV( float threshold = 0.0f);
 
 	/**
 	 * reduce the amount of points so its faster for GPU to process and draw
@@ -218,7 +218,7 @@ public:
 	 * std::vector<Vec2> reduced = ap.reduce(inputPoints, rect);//default epsilon is 2
 	 * @endcode
 	 */
-	std::vector<Vec2> reduce(const std::vector<Vec2>& points, const Rect& rect, float epsilon = 2.0f);
+	std::vector<Vec2> reduce(const std::vector<Vec2>& points, float epsilon = 2.0f);
 
 	/**
 	 * expand the points along their edge, useful after you reduce the points that cuts into the sprite

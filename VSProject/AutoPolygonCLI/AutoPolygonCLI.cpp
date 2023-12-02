@@ -38,6 +38,7 @@ int main()
 	{
 		// int epsilon = i*2;
 		float epsilon = 91.1f;
+		epsilon = 53.5f;
 		PolygonInfo info;
 		p.generateTriangles(info, Rect::ZERO, epsilon);
 		printf("epsilon: %d triangleNum: %d\tindexNum:%d\n", epsilon, info.triangles.vertCount, info.triangles.indexCount);

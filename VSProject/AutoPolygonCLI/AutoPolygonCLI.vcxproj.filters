@@ -30,9 +30,6 @@
     <ClCompile Include="..\..\src\CCAutoPolygon.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\clipper\clipper.cpp">
-      <Filter>源文件\clipper</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\poly2tri\sweep\advancing_front.cc">
       <Filter>源文件\poly2tri</Filter>
     </ClCompile>
@@ -62,6 +59,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\polypartition\polypartition.cpp">
       <Filter>源文件\polypartition</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\clipper\clipper.cpp">
+      <Filter>源文件\clipper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
