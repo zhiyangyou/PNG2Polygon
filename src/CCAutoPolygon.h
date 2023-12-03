@@ -247,8 +247,8 @@ public:
 	 */
 	Triangles triangulateByPoly2Tri(const std::vector<Vec2>& points,Triangles& tri);
 	void triangulateByPolypartition(const std::vector<Vec2>& points,Triangles& tri);
-	//void triangulateByTriangle(const std::vector<Vec2>& points,Triangles& tri);
-	void triangulateByTrianglePP(const std::vector<Vec2>& points,Triangles& tri);
+	void triangulateByTriangle(const std::vector<Vec2>& points,Triangles& tri);
+	//void triangulateByTrianglePP(const std::vector<Vec2>& points,Triangles& tri);
 
 	/**
 	 * calculate the UV coordinates for each points based on a texture rect

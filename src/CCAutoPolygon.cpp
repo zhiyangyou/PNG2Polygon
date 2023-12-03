@@ -28,8 +28,6 @@ THE SOFTWARE.
 
 #include "clipper/clipper.hpp"
 
-	
-
 #include "CCAutoPolygon.h"
 #include "PNGImage.h"
 #include "CCGeometry.h"
@@ -41,13 +39,19 @@ THE SOFTWARE.
 #include <limits>
 
 #include <opencv2/opencv.hpp>
-#include <TrianglePP/tpp_interface.hpp>
+
 
 #include "poly2tri/poly2tri.h"
 #include "polypartition/polypartition.h"
 
+#if 0
+//#include <TrianglePP/tpp_interface.hpp>
+#else
 // #include "triangle/triangle.h" 
-//#include "triangle/triangle.c" 
+#include "triangle/triangle.c" 
+#endif
+
+
 
 #define CC_SAFE_DELETE(p)           do { delete (p); (p) = nullptr; } while(0)
 #define CC_SAFE_DELETE_ARRAY(p)     do { if(p) { delete[] (p); (p) = nullptr; } } while(0)
@@ -774,6 +778,7 @@ std::vector<Vec2> AutoPolygon::expand(const std::vector<Vec2>& points, const Rec
 	return outPoints;
 }
 
+/*
 void AutoPolygon::triangulateByTrianglePP(const std::vector<Vec2>& points, Triangles& tri)
 {
 	//using namespace  tpp;
@@ -833,7 +838,7 @@ void AutoPolygon::triangulateByTrianglePP(const std::vector<Vec2>& points, Trian
 	tri.indices = indicesBuf;
 	tri.verts = vertsBuf;
 }
-
+*/
 Triangles AutoPolygon::triangulateByPoly2Tri(const std::vector<Vec2>& points,Triangles& tri)
 {
 	// if there are less than 3 points, then we can't triangulate
@@ -914,7 +919,60 @@ Triangles AutoPolygon::triangulateByPoly2Tri(const std::vector<Vec2>& points,Tri
 	return triangles;
 }
 
+void AutoPolygon::triangulateByTriangle(const std::vector<Vec2>& boundaryPoints, Triangles& tri)
+{
 	
+	// 创建 Triangle 数据结构
+	struct triangulateio in, out;
+	memset(&in, 0, sizeof(triangulateio));
+	memset(&out, 0, sizeof(triangulateio));
+
+	// 设置点的坐标
+	in.numberofpoints = boundaryPoints.size();
+	in.pointlist = (REAL*)malloc(in.numberofpoints * 2 * sizeof(REAL));
+
+	for (int i = 0; i < in.numberofpoints; ++i) {
+		in.pointlist[i * 2] = boundaryPoints[i].x;
+		in.pointlist[i * 2 + 1] = boundaryPoints[i].y;
+	}
+
+	// 设置边界约束
+	in.numberofsegments = in.numberofpoints;
+	in.segmentlist = (int*)malloc(in.numberofsegments * 2 * sizeof(int));
+
+	for (int i = 0; i < in.numberofsegments; ++i) {
+		in.segmentlist[i * 2] = i;
+		in.segmentlist[i * 2 + 1] = (i + 1) % in.numberofpoints;
+	}
+
+	// 设置约束标志
+	in.segmentmarkerlist = (int*)malloc(in.numberofsegments * sizeof(int));
+	for (int i = 0; i < in.numberofsegments; ++i) {
+		in.segmentmarkerlist[i] = 1;  // 标记这是一个约束边
+	}
+
+	// 设置其他参数...
+
+	// 使用 Triangle 进行三角剖分
+	char options[] = "p";
+	triangulate(options, &in, &out, nullptr);
+
+	// 处理输出，out 包含了生成的三角形信息
+	std::cout << "Generated triangles:" << std::endl;
+	for (int i = 0; i < out.numberoftriangles; ++i) {
+		std::cout << out.trianglelist[i * 3] << " "
+			<< out.trianglelist[i * 3 + 1] << " "
+			<< out.trianglelist[i * 3 + 2] << std::endl;
+	}
+
+	// 释放内存
+	free(in.pointlist);
+	free(in.segmentlist);
+	free(in.segmentmarkerlist);
+	// 释放 Triangle 库分配的内存...
+}
+
+
 
 void AutoPolygon::triangulateByPolypartition(const std::vector<Vec2>& points,Triangles& tri)
 {
@@ -1151,9 +1209,9 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	{
 		Triangles mergeTri;
 		// triangulateByPolypartition(mergePoly, mergeTri);
-		//triangulateByTriangle(mergePoly, mergeTri);
+		triangulateByTriangle(mergePoly, mergeTri);
 		// triangulateByPoly2Tri(mergePoly, mergeTri);
-		 triangulateByTrianglePP(mergePoly, mergeTri);
+		//triangulateByTrianglePP(mergePoly, mergeTri);
 		calculateUV(realRect, mergeTri.verts, mergeTri.vertCount);
 		listMergedTri.push_back(mergeTri);
 #ifdef _cv_debug_yzy

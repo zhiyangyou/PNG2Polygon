@@ -22,8 +22,8 @@
     <Filter Include="源文件\polypartition">
       <UniqueIdentifier>{69c8b7aa-f8ba-4554-82d9-6ded53f4aae1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\TrianglePP">
-      <UniqueIdentifier>{4eab8956-9eb1-4a40-b1bc-6e0690a4cd81}</UniqueIdentifier>
+    <Filter Include="源文件\triangle">
+      <UniqueIdentifier>{7d652b5e-eff8-4ac0-8748-256c8fb63417}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -66,11 +66,8 @@
     <ClCompile Include="..\..\src\clipper\clipper.cpp">
       <Filter>源文件\clipper</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\TrianglePP\tpp_assert.cpp">
-      <Filter>源文件\TrianglePP</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\TrianglePP\tpp_impl.cpp">
-      <Filter>源文件\TrianglePP</Filter>
+    <ClCompile Include="..\..\src\triangle\triangle.c">
+      <Filter>源文件\triangle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
