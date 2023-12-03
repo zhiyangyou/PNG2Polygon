@@ -37,7 +37,7 @@ int main()
 	for (int i = 1; i <= 1; ++i)
 	{
 		// int epsilon = i*2;
-		float epsilon = 91.1f;
+		float epsilon =291.1f;
 		// epsilon = 53.5f;
 		PolygonInfo info;
 		p.generateTriangles(info, Rect::ZERO, epsilon);

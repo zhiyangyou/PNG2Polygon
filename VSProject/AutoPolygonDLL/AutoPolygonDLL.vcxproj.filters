@@ -22,6 +22,9 @@
     <Filter Include="源文件\polypartition">
       <UniqueIdentifier>{308dae92-d0cf-4995-8ed5-d3675d167900}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\triangle">
+      <UniqueIdentifier>{cb782e83-56f0-4cd0-953a-11aee2eb6df9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ccTypes.h">
@@ -97,6 +100,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\polypartition\polypartition.cpp">
       <Filter>源文件\polypartition</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\triangle\triangle.c">
+      <Filter>源文件\triangle</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

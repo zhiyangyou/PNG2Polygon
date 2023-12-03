@@ -931,7 +931,7 @@ void AutoPolygon::triangulateByTriangle(const std::vector<Vec2>& boundaryPoints,
 	in.numberofpoints = boundaryPoints.size();
 	in.pointlist = (REAL*)malloc(in.numberofpoints * 2 * sizeof(REAL));
 
-	for (int i = 0; i < in.numberofpoints; ++i) {
+	for (int i = 0; i < in.numberofpoints; i++) {
 		in.pointlist[i * 2] = boundaryPoints[i].x;
 		in.pointlist[i * 2 + 1] = boundaryPoints[i].y;
 	}
@@ -940,36 +940,82 @@ void AutoPolygon::triangulateByTriangle(const std::vector<Vec2>& boundaryPoints,
 	in.numberofsegments = in.numberofpoints;
 	in.segmentlist = (int*)malloc(in.numberofsegments * 2 * sizeof(int));
 
-	for (int i = 0; i < in.numberofsegments; ++i) {
-		in.segmentlist[i * 2] = i;
-		in.segmentlist[i * 2 + 1] = (i + 1) % in.numberofpoints;
+	for (int i = 0; i < in.numberofsegments; i++) {
+		in.segmentlist[i * 2] = i + 1;
+		in.segmentlist[i * 2 + 1] = ((i + 1) % in.numberofpoints)+ 1; //  index start from 1 , not zero  haowuyu ...
+		//in.segmentlist[i * 2] = i  ;
+		//in.segmentlist[i * 2 + 1] = ((i + 1) % in.numberofpoints)  ; //  index start from 1 , not zero  haowuyu ...
+		printf("seg ( %d , %d)\n",i+1, ((i + 1) % in.numberofpoints) + 1);
 	}
 
 	// 设置约束标志
 	in.segmentmarkerlist = (int*)malloc(in.numberofsegments * sizeof(int));
-	for (int i = 0; i < in.numberofsegments; ++i) {
+	for (int i = 0; i < in.numberofsegments; i++) {
 		in.segmentmarkerlist[i] = 1;  // 标记这是一个约束边
 	}
 
-	// 设置其他参数...
-
-	// 使用 Triangle 进行三角剖分
+	
 	char options[] = "p";
 	triangulate(options, &in, &out, nullptr);
 
-	// 处理输出，out 包含了生成的三角形信息
-	std::cout << "Generated triangles:" << std::endl;
-	for (int i = 0; i < out.numberoftriangles; ++i) {
-		std::cout << out.trianglelist[i * 3] << " "
-			<< out.trianglelist[i * 3 + 1] << " "
-			<< out.trianglelist[i * 3 + 2] << std::endl;
+	int indexCount = out.numberoftriangles * 3;
+	int vertCount = out.numberofpoints;
+	int triCount = out.numberoftriangles;
+	tri.verts = new  V3F_C4B_T2F[vertCount];
+	tri.indices = new unsigned short[indexCount];
+	tri.indexCount = indexCount;
+	tri.vertCount = vertCount;
+
+	 
+
+	//for (int i = 0; i < out.numberoftriangles; ++i) {
+	//	std::cout << out.trianglelist[i * 3] << " "
+	//		<< out.trianglelist[i * 3 + 1] << " "
+	//		<< out.trianglelist[i * 3 + 2] << std::endl;
+	//}
+
+	for (int i = 0; i < out.numberoftriangles; ++i) 
+	{
+		int i1 = out.trianglelist[i * 3] - 1;
+		int i2 = out.trianglelist[i * 3 + 1] - 1;
+		int i3= out.trianglelist[i * 3 + 2] - 1;
+
+		tri.indices[i * 3] = i1;
+		tri.indices[i * 3 + 1] = i2;
+		tri.indices[i * 3 + 2] = i3;
+
+		std::cout << i1 << " "
+			<< i2 << " "
+			<< i3 << std::endl;
+	}
+	for (int i = 0; i < out.numberoftriangles; ++i)
+	{
+		int i1 = tri.indices[i * 3]  ;
+		int i2 = tri.indices[i * 3 + 1]  ;
+		int i3 = tri.indices[i * 3 + 2]  ;
+		std::cout  << " ---- " << i1 << " "
+	<< i2 << " "
+	<< i3 << std::endl;
 	}
 
-	// 释放内存
+	//for (int i = 0; i < out.numberofpoints; ++i)
+	for (int i = 0; i < out.numberofpoints; ++i)
+	{
+		tri.verts[i].vertices.x = out.pointlist[i * 2];
+		tri.verts[i].vertices.y = out.pointlist[i * 2 + 1];
+		tri.verts[i].vertices.x = boundaryPoints[i].x;
+		tri.verts[i].vertices.y = boundaryPoints[i].y;
+		// std::cout <<i<< " ( " << boundaryPoints[i].x << " , " << boundaryPoints[i].y << " ) \n";
+		// std::cout <<i<< " ( " << out.pointlist[i * 2] << " , " << out.pointlist[i * 2 + 1] << " ) \n";
+		std::cout <<i<< " ( " << tri.verts[i].vertices.x << " , " << tri.verts[i].vertices.y << " ) \n";
+	}
+
+
+	// TODO 释放内存 
 	free(in.pointlist);
 	free(in.segmentlist);
 	free(in.segmentmarkerlist);
-	// 释放 Triangle 库分配的内存...
+	
 }
 
 
@@ -1131,11 +1177,11 @@ void drawCVTriangle( cv::Mat & imageTri,const char * name ,Triangles &tri ,const
 	{
 		unsigned short index = tri.indices[i];
 		Vec3 p = tri.verts[index].vertices;
-		trianglePoints.push_back(cv::Point(p.x, p.y));
+		trianglePoints.emplace_back(p.x, p.y);
 	}
 	// 绘制三角形
 	// cv::polylines(image, trianglePoints, true, cv::Scalar(0,255,0), 2, cv::LINE_AA); 
-	cv::polylines(imageTri, trianglePoints, true,  color, 1, cv::LINE_AA); 
+	cv::polylines(imageTri, trianglePoints, true,  color, 3, cv::LINE_AA); 
 
 	char buf [128];
 	sprintf_s(buf,sizeof(buf),"img+Triangle%d",i );
@@ -1157,7 +1203,7 @@ void drawCVPoints(cv::Mat & img ,const char * name ,std::vector<Vec2>& ps,int in
 	{
 		Contours.push_back(cvPoints);
 	}
-	cv::drawContours(img, Contours, 0, color , 2);
+	cv::drawContours(img, Contours, 0, color , 2,cv::LINE_4);
 	
 	cv::imshow(name, img);
 }
@@ -1221,6 +1267,23 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	}
 	
 	Triangles totalTri = MergeTriangles(listMergedTri, true);
+#ifdef _cv_debug_yzy
+	for (int i =0 ; i < totalTri.vertCount; i ++)
+	{
+		printf("tri vert %d:(%d,%d)\n",i,(int)totalTri.verts[i].vertices.x,(int)totalTri.verts[i].vertices.y);
+	}
+
+	for (int i =0 ; i < totalTri.indexCount/3; i ++)
+	{
+		printf("tri index %d:(%d, %d, %d )\n",
+			i,
+			totalTri.indices[i*3],
+			totalTri.indices[i*3+1],
+			totalTri.indices[i*3+2] 
+			);
+	}
+#endif
+	
 	infoForFill.triangles = totalTri;
 	infoForFill.setFilename(_image->getFileName());
 	infoForFill.setRect(realRect);

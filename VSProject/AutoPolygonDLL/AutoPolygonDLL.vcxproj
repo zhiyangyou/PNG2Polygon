@@ -41,6 +41,7 @@
     <ClCompile Include="..\..\src\poly2tri\sweep\sweep.cc" />
     <ClCompile Include="..\..\src\poly2tri\sweep\sweep_context.cc" />
     <ClCompile Include="..\..\src\polypartition\polypartition.cpp" />
+    <ClCompile Include="..\..\src\triangle\triangle.c" />
     <ClCompile Include="..\..\src\UnityExport.cpp" />
     <ClCompile Include="..\..\src\UnityImage.cpp" />
     <ClCompile Include="..\..\src\Vec2.cpp" />
@@ -146,7 +147,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;AUTOPOLYGONDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;AUTOPOLYGONDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;NO_TIMER;TRILIBRARY;ANSI_DECLARATORS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
@@ -172,7 +173,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;AUTOPOLYGONDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;AUTOPOLYGONDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;NO_TIMER;TRILIBRARY;ANSI_DECLARATORS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
