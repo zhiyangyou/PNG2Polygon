@@ -1,3 +1,4 @@
+#pragma warning(disable: 4703)
 /** 
     @file  triangle_impl.hpp
     @brief The original JPS's C-code of TriLib, wrapped in the Triwrap class by @piyush. 
