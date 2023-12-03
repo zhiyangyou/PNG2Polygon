@@ -110,7 +110,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_cv_debug_yzy</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_cv_debug_yzy;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -130,7 +130,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_cv_debug_yzy</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_cv_debug_yzy;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -159,6 +159,8 @@
     <ClCompile Include="..\..\src\poly2tri\sweep\sweep.cc" />
     <ClCompile Include="..\..\src\poly2tri\sweep\sweep_context.cc" />
     <ClCompile Include="..\..\src\polypartition\polypartition.cpp" />
+    <ClCompile Include="..\..\src\TrianglePP\tpp_assert.cpp" />
+    <ClCompile Include="..\..\src\TrianglePP\tpp_impl.cpp" />
     <ClCompile Include="..\..\src\Vec2.cpp" />
     <ClCompile Include="..\..\src\Vec3.cpp" />
     <ClCompile Include="AutoPolygonCLI.cpp" />

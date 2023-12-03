@@ -97,7 +97,7 @@ namespace tpp
          triangles might *not be Delaunay*! In quality triangulation *additional* vertices called Steiner 
          points may be created.
 
-         @param quality: enforce minimal angle (default: 20°) and minimal area (default: none)
+         @param quality: enforce minimal angle (default: 20? and minimal area (default: none)
          @param traceLvl: enable traces
        */
       void Triangulate(bool quality = false, DebugOutputLevel traceLvl = None);
@@ -117,7 +117,7 @@ namespace tpp
           segment may have been *subdivided* into several edges by the insertion of *additional* vertices, called 
           Steiner points (@see: http://www.cs.cmu.edu/~quake/triangle.defs.html)
 
-          @param quality: enforce minimal angle (default: 20°) and minimal area (default: none)
+          @param quality: enforce minimal angle (default: 20? and minimal area (default: none)
           @param traceLvl: enable traces
         */
       void TriangulateConf(bool quality = false, DebugOutputLevel traceLvl = None);

@@ -25,9 +25,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "poly2tri/poly2tri.h"
+
 #include "clipper/clipper.hpp"
-#include "polypartition/polypartition.h"
+
+	
+
 #include "CCAutoPolygon.h"
 #include "PNGImage.h"
 #include "CCGeometry.h"
@@ -36,13 +38,20 @@ THE SOFTWARE.
 
 #include <algorithm>
 #include <cassert>
-#include <cmath>
 #include <limits>
 
 #include <opencv2/opencv.hpp>
+#include <TrianglePP/tpp_interface.hpp>
+
+#include "poly2tri/poly2tri.h"
+#include "polypartition/polypartition.h"
+
+// #include "triangle/triangle.h" 
+//#include "triangle/triangle.c" 
 
 #define CC_SAFE_DELETE(p)           do { delete (p); (p) = nullptr; } while(0)
 #define CC_SAFE_DELETE_ARRAY(p)     do { if(p) { delete[] (p); (p) = nullptr; } } while(0)
+
 
 
 #define CC_RECT_POINTS_TO_PIXELS(r)                                                                        \
@@ -197,7 +206,8 @@ void MergePolygons(std::vector<std::vector<Vec2>>& polygons, std::vector<std::ve
 	}
 	int a = 0;
 }
-
+	
+	
 PolygonInfo::PolygonInfo()
 	: _isVertsOwner(true)
 	, _rect(Rect::ZERO)
@@ -764,7 +774,67 @@ std::vector<Vec2> AutoPolygon::expand(const std::vector<Vec2>& points, const Rec
 	return outPoints;
 }
 
-Triangles AutoPolygon::triangulate(const std::vector<Vec2>& points,Triangles& tri)
+void AutoPolygon::triangulateByTrianglePP(const std::vector<Vec2>& points, Triangles& tri)
+{
+	//using namespace  tpp;
+	std::vector<tpp::Delaunay::Point> delaunayInput;
+
+	for (auto & p : points)
+	{
+		delaunayInput.push_back(tpp::Delaunay::Point(p.x, p.y));
+	}
+	// use standard triangulation
+	tpp::Delaunay trGenerator(delaunayInput);
+	
+	// trGenerator.setAlgorithm(tpp::Incremental);
+	// trGenerator.setAlgorithm(tpp::Sweepline);
+	trGenerator.setAlgorithm(tpp::DivideConquer);
+	// std::vector<float> maxAreasConstraint;
+	// maxAreasConstraint.push_back(1000000.0f);
+	// trGenerator.setRegionsConstraint(delaunayInput,maxAreasConstraint);
+	trGenerator.setSegmentConstraint(delaunayInput);
+
+	// trGenerator.setcon
+	
+	trGenerator.Triangulate(); 
+	
+
+		
+	// iterate over triangles
+	int vertCount = trGenerator.verticeCount();
+	int indexCount = trGenerator.triangleCount() * 3;
+	// now that we know the size of verts and indices we can create the buffers
+	V3F_C4B_T2F* vertsBuf = new (std::nothrow) V3F_C4B_T2F[vertCount];
+
+
+	unsigned short* indicesBuf = new (std::nothrow) unsigned short[indexCount];
+	int triCount = 0;
+	for (tpp::FaceIterator fit = trGenerator.fbegin(); fit != trGenerator.fend(); ++fit)
+	{
+		int vertexIdx1 = fit.Org();
+		int vertexIdx2 = fit.Dest();
+		int vertexIdx3 = fit.Apex();
+		indicesBuf[triCount * 3] = vertexIdx1;
+		indicesBuf[triCount * 3 + 1] = vertexIdx2;
+		indicesBuf[triCount * 3 + 2] = vertexIdx3;
+		
+		// access point's coordinates: 
+		vertsBuf[vertexIdx1].vertices.x = (float) delaunayInput[vertexIdx1][1];
+		vertsBuf[vertexIdx1].vertices.y = (float) delaunayInput[vertexIdx1][1];
+		vertsBuf[vertexIdx2].vertices.x = (float) delaunayInput[vertexIdx2][0];
+		vertsBuf[vertexIdx2].vertices.y = (float) delaunayInput[vertexIdx2][1];
+		vertsBuf[vertexIdx3].vertices.x = (float) delaunayInput[vertexIdx3][0];
+		vertsBuf[vertexIdx3].vertices.y = (float) delaunayInput[vertexIdx3][1];
+
+		triCount++;
+	}
+	tri.indexCount = indexCount;
+	tri.vertCount= vertCount;
+	tri.indices = indicesBuf;
+	tri.verts = vertsBuf;
+}
+
+Triangles AutoPolygon::triangulateByPoly2Tri(const std::vector<Vec2>& points,Triangles& tri)
 {
 	// if there are less than 3 points, then we can't triangulate
 	if (points.size() < 3)
@@ -844,6 +914,8 @@ Triangles AutoPolygon::triangulate(const std::vector<Vec2>& points,Triangles& tr
 	return triangles;
 }
 
+	
+
 void AutoPolygon::triangulateByPolypartition(const std::vector<Vec2>& points,Triangles& tri)
 {
 	TPPLPolyList triangles;
@@ -855,7 +927,7 @@ void AutoPolygon::triangulateByPolypartition(const std::vector<Vec2>& points,Tri
 		poly.GetPoints()[i] = {p.x,p.y}; 
 	}
 	TPPLPartition tpp;
-	//if (!tpp.Triangulate_OPT(&poly,&triangles))
+	// if (!tpp.Triangulate_OPT(&poly,&triangles))
 	// if (!tpp.Triangulate_MONO(&poly,&triangles))
 	// tpp.
 	if (!tpp.Triangulate_EC(&poly,&triangles))
@@ -932,6 +1004,8 @@ void AutoPolygon::triangulateByPolypartition(const std::vector<Vec2>& points,Tri
 		}
 	}
 }
+ 
+
 
 void AutoPolygon::calculateUV(const Rect& rect, V3F_C4B_T2F* verts, size_t count)
 {
@@ -1035,7 +1109,7 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	Rect realRect = getRealRect(rect);
 	// auto ps = trace(realRect, threshold); std::cout<<"bynormal\n";
 	auto originpolygons = traceByCV(threshold); // std::cout<<"bycv\n";
-	std::vector<Triangles> listTri;
+	// std::vector<Triangles> listTri;
 	int count = 0;
 #ifdef _cv_debug_yzy 
 	cv::Mat imgOriginPoints = cv::imread(this->_image->getFileName());
@@ -1050,43 +1124,45 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 		std::vector<Vec2> reducePoly = reduce(pOrigin, epsilon);
 		std::vector<Vec2> expandPoly = expand(reducePoly, realRect, epsilon);
 		expandLists.push_back(expandPoly);
-		Triangles tri;
-		triangulateByPolypartition(expandPoly,tri);
-		calculateUV(realRect, tri.verts, tri.vertCount);
-		listTri.push_back(tri);
+		// Triangles tri;
+		//triangulateByPolypartition(expandPoly,tri);
+		// triangulateByTriangle(expandPoly,tri);
+		// calculateUV(realRect, tri.verts, tri.vertCount);
+		// listTri.push_back(tri);
 #ifdef _cv_debug_yzy
 		// drawCVPoints(imgOriginPoints,"origin points",pOrigin,count,cv::Scalar(255, 255, 1));
 		// drawCVPoints(imgOriginReduce,"reduce points",reducePoly,count,cv::Scalar(0, 255, 0));
 		// drawCVPoints(imgOriginExpand,"expand points",expandPoly,count,cv::Scalar(255, 0, 0));
-		 drawCVTriangle( imgTri,"triangles", tri, realRect,count++,cv::Scalar(0, 0, 255));
+		 // drawCVTriangle( imgTri,"triangles", tri, realRect,count++,cv::Scalar(0, 0, 255));
 #endif
 	}
 
 	// merge poly
+	 
+	std::vector<Triangles> listMergedTri;
+	std::vector<std::vector<Vec2>> mergeExpandPolygonList;
+	MergePolygons(expandLists, mergeExpandPolygonList);
+
+#ifdef _cv_debug_yzy
+	cv::Mat imgOriginExpandMerge = cv::imread(this->_image->getFileName());
+	cv::Mat imgTriMerge = cv::imread(this->_image->getFileName());
+#endif
+	for (std::vector<Vec2>& mergePoly : mergeExpandPolygonList)
 	{
-		std::vector<Triangles> listMergedTri;
-		std::vector<std::vector<Vec2>> mergeExpandPolygonList;
-		MergePolygons(expandLists, mergeExpandPolygonList);
-
+		Triangles mergeTri;
+		// triangulateByPolypartition(mergePoly, mergeTri);
+		//triangulateByTriangle(mergePoly, mergeTri);
+		// triangulateByPoly2Tri(mergePoly, mergeTri);
+		 triangulateByTrianglePP(mergePoly, mergeTri);
+		calculateUV(realRect, mergeTri.verts, mergeTri.vertCount);
+		listMergedTri.push_back(mergeTri);
 #ifdef _cv_debug_yzy
-		cv::Mat imgOriginExpandMerge = cv::imread(this->_image->getFileName());
-		cv::Mat imgTriMerge = cv::imread(this->_image->getFileName());
+		drawCVPoints(imgOriginExpandMerge, "merged expand points", mergePoly, count, cv::Scalar(255, 255, 1));
+		drawCVTriangle(imgTriMerge, "merged triangles", mergeTri, realRect, count++, cv::Scalar(0, 0, 255));
 #endif
-		for (std::vector<Vec2>& mergePoly : mergeExpandPolygonList)
-		{
-			Triangles mergeTri;
-			triangulateByPolypartition(mergePoly, mergeTri);
-			calculateUV(realRect, mergeTri.verts, mergeTri.vertCount);
-			listMergedTri.push_back(mergeTri);
-#ifdef _cv_debug_yzy
-			drawCVPoints(imgOriginExpandMerge, "merged expand points", mergePoly, count, cv::Scalar(255, 255, 1));
-			drawCVTriangle(imgTriMerge, "merged triangles", mergeTri, realRect, count++, cv::Scalar(0, 0, 255));
-#endif
-		}
 	}
-
 	
-	Triangles totalTri = MergeTriangles(listTri, true);
+	Triangles totalTri = MergeTriangles(listMergedTri, true);
 	infoForFill.triangles = totalTri;
 	infoForFill.setFilename(_image->getFileName());
 	infoForFill.setRect(realRect);

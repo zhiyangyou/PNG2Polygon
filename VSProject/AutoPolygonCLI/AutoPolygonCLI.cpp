@@ -41,7 +41,7 @@ int main()
 		// epsilon = 53.5f;
 		PolygonInfo info;
 		p.generateTriangles(info, Rect::ZERO, epsilon);
-		printf("epsilon: %d triangleNum: %d\tindexNum:%d\n", epsilon, info.triangles.vertCount, info.triangles.indexCount);
+		printf("epsilon: %f triangleNum: %d\tindexNum:%d\n", epsilon, info.triangles.vertCount, info.triangles.indexCount);
 		char filePathBuffer[128] = { 0 };
 		sprintf_s(filePathBuffer, sizeof(filePathBuffer), "epsilon-%d.txt", epsilon);
 		print2File(info, filePathBuffer);
