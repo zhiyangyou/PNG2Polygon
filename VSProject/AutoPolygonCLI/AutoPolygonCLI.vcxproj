@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{44e6fb89-6c1a-4984-8650-28ebae8f8106}</ProjectGuid>
     <RootNamespace>AutoPolygonCLI</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files (x86)\Windows Kits\10\lib\10.0.22621.0\ucrt\x64;$(SolutionDir)..\..\src\opencv\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files (x86)\Windows Kits\10\lib\10.0.22621.0\ucrt\x64;$(SolutionDir)..\..\src\opencv\lib\debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt;$(IncludePath)</IncludePath>
@@ -113,11 +113,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_cv_debug_yzy;_CRT_SECURE_NO_WARNINGS;NO_TIMER;TRILIBRARY;ANSI_DECLARATORS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_world480d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_imgproc480d.lib;opencv_core480d.lib;IlmImfd.lib;opencv_objdetect480d.lib;aded.lib;opencv_flann480d.lib;opencv_features2d480d.lib;opencv_ts480d.lib;opencv_videoio480d.lib;opencv_stitching480d.lib;opencv_video480d.lib;opencv_ml480d.lib;opencv_imgcodecs480d.lib;opencv_photo480d.lib;opencv_highgui480d.lib;libwebpd.lib;libtiffd.lib;libopenjp2d.lib;libjpeg-turbod.lib;libpngd.lib;ippiwd.lib;zlibd.lib;ittnotifyd.lib;jsimd.lib;quircd.lib;ippicvmt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)\..\..\src\opencv\bin\*" "$(TargetDir)" /Y /S</Command>
@@ -133,13 +135,14 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_cv_debug_yzy;_CRT_SECURE_NO_WARNINGS;NO_TIMER;TRILIBRARY;ANSI_DECLARATORS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_world480.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ippicvmt.lib;opencv_imgproc480.lib;opencv_core480.lib;IlmImf.lib;opencv_videoio480.lib;opencv_objdetect480.lib;opencv_flann480.lib;opencv_features2d480.lib;opencv_imgcodecs480.lib;opencv_stitching480.lib;ade.lib;opencv_ml480.lib;opencv_photo480.lib;opencv_video480.lib;opencv_highgui480.lib;libwebp.lib;libtiff.lib;libopenjp2.lib;libjpeg-turbo.lib;libpng.lib;ippiw.lib;ittnotify.lib;zlib.lib;quirc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)\..\..\src\opencv\bin\*" "$(TargetDir)" /Y /S</Command>

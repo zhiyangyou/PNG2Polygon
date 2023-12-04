@@ -1,12 +1,56 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
+using UnityEditor;
 using UnityEngine;
 
 
 namespace App.Utils
 {
+    [InitializeOnLoad]
+    public static class DLLAutoIniter
+    {
+        static DLLAutoIniter()
+        {
+            DLLLoaderMenuItem.InitAutoPolygonLibrary();
+        }
+    }
+
+    public static class DLLLoaderMenuItem
+    {
+        [MenuItem("YzyTools/OpenLib")]
+        public static void InitAutoPolygonLibrary()
+        {
+            unsafe
+            {
+                IntPtr intPtr = DLLLoader.LoadDLL();
+                if (intPtr.ToPointer() == null)
+                {
+                    Debug.LogError("加载Dll失败");
+                }
+                else
+                {
+                    ExportFuncDef.Init();
+                    Debug.Log($"加载Dll成功 ptr = {intPtr}");
+                }
+            }
+        }
+
+        [MenuItem("YzyTools/CloseLib")]
+        public static void UnInitAutoPolygonLibrary()
+        {
+            if (!DLLLoader.UnloadDLL())
+            {
+                Debug.LogError("卸载Dll失败");
+            }
+            else
+            {
+                ExportFuncDef.UnInit();
+                Debug.Log("卸载Dll成功");
+            }
+        }
+    }
+
     public static class DLLLoader
     {
 #if UNITY_EDITOR_WIN
@@ -29,7 +73,7 @@ namespace App.Utils
                 {
                     string dllFullPath = Application.dataPath + "";
                     DirectoryInfo dir = new DirectoryInfo(dllFullPath);
-                    FileInfo fileInfo = new FileInfo(dir.Parent.Parent.Parent.FullName + "/Plugin/win32/AutoPolygonDLL.dll" );
+                    FileInfo fileInfo = new FileInfo(dir.Parent.Parent.Parent.FullName + "/Plugin/win32/AutoPolygonDLL.dll");
                     _dllPath = fileInfo.FullName;
                 }
 
@@ -39,21 +83,17 @@ namespace App.Utils
 
         [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
         public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
-        
-        [DllImport("kernel32")]
-        static extern IntPtr LoadLibrary(
-            string path);
 
         [DllImport("kernel32")]
-        static extern IntPtr GetProcAddress(
-            IntPtr libraryHandle,
-            string symbolName);
+        static extern IntPtr LoadLibrary(string path);
 
         [DllImport("kernel32")]
-        static extern bool FreeLibrary(
-            IntPtr libraryHandle);
+        static extern IntPtr GetProcAddress(IntPtr libraryHandle, string symbolName);
 
-        public static IntPtr OpenLibrary(string dynamicLibFullPath = null)
+        [DllImport("kernel32")]
+        static extern bool FreeLibrary(IntPtr libraryHandle);
+
+        public static IntPtr LoadDLL(string dynamicLibFullPath = null)
         {
             if (string.IsNullOrEmpty(dynamicLibFullPath))
             {
@@ -67,13 +107,11 @@ namespace App.Utils
             }
 
             _hasLoaded = true;
-
             return _dllHandle;
         }
 
-        public static bool CloseLibrary()
+        public static bool UnloadDLL()
         {
-            Debug.Log("freeLibrary");
             var ret = FreeLibrary(_dllHandle);
             _hasLoaded = !ret;
             return ret;

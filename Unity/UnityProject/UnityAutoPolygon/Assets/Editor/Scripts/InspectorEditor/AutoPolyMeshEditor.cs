@@ -7,7 +7,7 @@ using App.Utils.InspectorEditor;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(AutoPolyMesh))] // 替换成你的MonoBehavior组件的类名
+[CustomEditor(typeof(AutoPolyMesh))]
 public class YourMonoBehaviorEditor : Editor
 {
     List<Vector3> _listVerts = new List<Vector3>();
@@ -16,8 +16,8 @@ public class YourMonoBehaviorEditor : Editor
 
     private void OnEnable()
     {
-        DLLLoader.OpenLibrary();
-        ExportFuncDef.Init();
+        // DLLLoader.OpenLibrary();
+        // ExportFuncDef.Init();
         AutoPolyMesh poly = (AutoPolyMesh)target;
         poly.isDrawGizmos = true;
     }
@@ -31,20 +31,20 @@ public class YourMonoBehaviorEditor : Editor
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
-        // 获取目标组件
         AutoPolyMesh poly = (AutoPolyMesh)target;
         EditorGUI.BeginChangeCheck();
 
         poly.isDrawGizmos = EditorGUILayout.Toggle("gizmos", poly.isDrawGizmos);
         poly.epsilon = EditorGUILayout.Slider("epsilon", poly.epsilon, 1.0f, 100.0f);
         poly.alphaThreshold = EditorGUILayout.Slider("alphaThreshold", poly.alphaThreshold, 0f, 128f);
+        Debug.Log($"epsilon:{poly.epsilon}  alphaThreshold:{poly.alphaThreshold}");
         if (EditorGUI.EndChangeCheck())
         {
             RefreshMesh();
             EditorUtility.SetDirty(poly);
         }
 
-        if (GUI.Button(EditorGUILayout.GetControlRect(),"RefreshMesh"))
+        if (GUI.Button(EditorGUILayout.GetControlRect(), "RefreshMesh"))
         {
             RefreshMesh();
         }

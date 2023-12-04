@@ -28,16 +28,17 @@ void print2File(PolygonInfo& info, const char* filename)
 }
 int main()
 {
-	std::cout << "Hello World!\n";
-	std::cout << sizeof(V3F_C4B_T2F) << "n";
+	std::cout << "Hello AutoPolygon... \n";
+	PNGImage img("testImages/tp4.png");
 	// PNGImage img("testImages/1.png");
-	PNGImage img("E:\\_WorkSpace_E\\_GitHub\\PolygonPNG\\Unity\\UnityProject\\UnityAutoPolygon\\Assets\\TestImages\\test3.png");
+	//PNGImage img("E:\\_WorkSpace_E\\_GitHub\\PolygonPNG\\Unity\\UnityProject\\UnityAutoPolygon\\Assets\\TestImages\\test3.png");
+	//PNGImage img("D:/_github/PNG2Polygon/Unity/UnityProject/UnityAutoPolygon/Assets/TestImages/test3.png");
 	AutoPolygon p(&img);
 
 	for (int i = 1; i <= 1; ++i)
 	{
 		// int epsilon = i*2;
-		float epsilon =291.1f;
+		float epsilon = 8.0f;
 		// epsilon = 53.5f;
 		PolygonInfo info;
 		p.generateTriangles(info, Rect::ZERO, epsilon);
@@ -46,7 +47,7 @@ int main()
 		sprintf_s(filePathBuffer, sizeof(filePathBuffer), "epsilon-%d.txt", epsilon);
 		print2File(info, filePathBuffer);
 	}
-	cv::waitKey();
+	//cv::waitKey();
 	int a = 0;
 }
 

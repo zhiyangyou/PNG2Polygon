@@ -64,6 +64,12 @@ namespace App.Utils
             bool needInverseTriangles = true
         )
         {
+            if (_cppDele_AutoPolygonGenerate == null)
+            {
+                Debug.LogError("运行库已经卸载，请重新加载");
+                return -1;
+            }
+
             unsafe
             {
                 V3F_C4B_T2F[] verts = null;
@@ -118,8 +124,9 @@ namespace App.Utils
                         {
                             // GeometryUtils.InverseTriangle(listIndex);
                         }
+
                         // GeometryUtils.InverseUV_V(listUVs);
-                        GeometryUtils.InverseXY_Y(listVerts,height);
+                        GeometryUtils.InverseXY_Y(listVerts, height);
                     }
 
                     return ret;
@@ -133,10 +140,11 @@ namespace App.Utils
             _hasInit = false;
         }
 
-        public static void Init()
+        public static bool Init()
         {
             _cppDele_AutoPolygonGenerate = DLLLoader.GetDelegate<CppDele_AutoPolygonGenerate>("AutoPolygonGenerate");
-            _hasInit = true;
+            _hasInit = _cppDele_AutoPolygonGenerate != null;
+            return _hasInit;
         }
     }
 }

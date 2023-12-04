@@ -37,6 +37,7 @@ THE SOFTWARE.
 #include <algorithm>
 #include <cassert>
 #include <limits>
+#include <unordered_set>
 
 #include <opencv2/opencv.hpp>
 
@@ -74,8 +75,7 @@ static unsigned short quadIndices9[] = {
 	0 + 4 * 8,1 + 4 * 8,2 + 4 * 8, 3 + 4 * 8,2 + 4 * 8,1 + 4 * 8,
 };
 
-
-// 判断两个点是否相同 
+	
 #define TPPLPointIsEq(p1,p2)   (p1).x == (p2).x && (p1).y == (p2).y
  
 
@@ -85,6 +85,30 @@ void DisposeTriangleMemory(Triangles tri)
 {
 	CC_SAFE_DELETE_ARRAY(tri.indices);
 	CC_SAFE_DELETE_ARRAY(tri.verts);
+}
+
+ 
+struct Vec2Hash {
+	std::size_t operator()(const Vec2& vec) const {
+		std::hash<float> hasher;
+		return hasher(vec.x) ^ (hasher(vec.y) << 1);
+	}
+};
+
+bool  removeDuplicateVec2(const std::vector<Vec2>& vec2Array , std::vector<Vec2>& uniqueVec2 ) {
+	std::unordered_set<Vec2, Vec2Hash> seenSet;
+	bool hasRepeat = false;
+	for (const Vec2& vec2 : vec2Array) {
+		if (seenSet.find(vec2) == seenSet.end()) {
+			uniqueVec2.push_back(vec2);
+			seenSet.insert(vec2);
+		}
+		else
+		{
+			hasRepeat = true;
+		}
+	}
+	return hasRepeat;
 }
 
 std::pair<float, float> boundingBoxDimensions(const std::vector<Vec2>&points)
@@ -163,6 +187,11 @@ void CollectPolyNodeData(ClipperLib::PolyNode* node , std::vector<std::vector<Ve
 {
 		
 	std::vector<Vec2> poly;			
+	if (node->IsHole())
+	{
+		// TODO 进行标记点
+		return;
+	}
 	for (const ClipperLib::IntPoint& p  : node->Contour)
 	{
 		poly.emplace_back(p.X, p.Y);
@@ -187,15 +216,14 @@ void MergePolygons(std::vector<std::vector<Vec2>>& polygons, std::vector<std::ve
 	//TODO  
 
 	for (std::vector<Vec2> & poly : polygons) {
-		Paths path;
+		clipperPolygons.emplace_back();
+		Paths& path = clipperPolygons.back();
 		for (Vec2& point : poly) {
-			path.push_back(ClipperLib::IntPoint(point.x, point.y));
+			path.emplace_back(point.x, point.y);
 		}
-		clipperPolygons.push_back(path);
 	}
 	
 	ClipperLib::Clipper clipper;
-
 	clipper.AddPaths(clipperPolygons, ClipperLib::ptSubject, true);
 	
 	ClipperLib::PolyTree solution;
@@ -207,6 +235,18 @@ void MergePolygons(std::vector<std::vector<Vec2>>& polygons, std::vector<std::ve
 	{
 		ClipperLib::PolyNode* node = solution.Childs[i];
 		CollectPolyNodeData(node, mergedPolygons);
+	}
+
+	std::vector<Vec2> uniquePoly;
+	for (auto& mergedPolygon : mergedPolygons)
+	{
+		auto& oldPoly = mergedPolygon;
+		uniquePoly.clear();
+		
+		if (removeDuplicateVec2(oldPoly, uniquePoly))
+		{
+			mergedPolygon = uniquePoly;
+		}
 	}
 	int a = 0;
 }
@@ -945,7 +985,7 @@ void AutoPolygon::triangulateByTriangle(const std::vector<Vec2>& boundaryPoints,
 		in.segmentlist[i * 2 + 1] = ((i + 1) % in.numberofpoints)+ 1; //  index start from 1 , not zero  haowuyu ...
 		//in.segmentlist[i * 2] = i  ;
 		//in.segmentlist[i * 2 + 1] = ((i + 1) % in.numberofpoints)  ; //  index start from 1 , not zero  haowuyu ...
-		printf("seg ( %d , %d)\n",i+1, ((i + 1) % in.numberofpoints) + 1);
+
 	}
 
 	// 设置约束标志
@@ -966,14 +1006,6 @@ void AutoPolygon::triangulateByTriangle(const std::vector<Vec2>& boundaryPoints,
 	tri.indexCount = indexCount;
 	tri.vertCount = vertCount;
 
-	 
-
-	//for (int i = 0; i < out.numberoftriangles; ++i) {
-	//	std::cout << out.trianglelist[i * 3] << " "
-	//		<< out.trianglelist[i * 3 + 1] << " "
-	//		<< out.trianglelist[i * 3 + 2] << std::endl;
-	//}
-
 	for (int i = 0; i < out.numberoftriangles; ++i) 
 	{
 		int i1 = out.trianglelist[i * 3] - 1;
@@ -983,19 +1015,6 @@ void AutoPolygon::triangulateByTriangle(const std::vector<Vec2>& boundaryPoints,
 		tri.indices[i * 3] = i1;
 		tri.indices[i * 3 + 1] = i2;
 		tri.indices[i * 3 + 2] = i3;
-
-		std::cout << i1 << " "
-			<< i2 << " "
-			<< i3 << std::endl;
-	}
-	for (int i = 0; i < out.numberoftriangles; ++i)
-	{
-		int i1 = tri.indices[i * 3]  ;
-		int i2 = tri.indices[i * 3 + 1]  ;
-		int i3 = tri.indices[i * 3 + 2]  ;
-		std::cout  << " ---- " << i1 << " "
-	<< i2 << " "
-	<< i3 << std::endl;
 	}
 
 	//for (int i = 0; i < out.numberofpoints; ++i)
@@ -1195,7 +1214,7 @@ void drawCVPoints(cv::Mat & img ,const char * name ,std::vector<Vec2>& ps,int in
 	// 定义三角形的三个顶点
 	std::vector<cv::Point> cvPoints;
 	std::vector<std::vector<cv::Point>>  Contours;
-	for (auto v: ps)
+	for (Vec2& v: ps)
 	{
 		cvPoints.push_back(cv::Point(v.x,v.y));
 	}
@@ -1203,7 +1222,7 @@ void drawCVPoints(cv::Mat & img ,const char * name ,std::vector<Vec2>& ps,int in
 	{
 		Contours.push_back(cvPoints);
 	}
-	cv::drawContours(img, Contours, 0, color , 2,cv::LINE_4);
+	cv::drawContours(img, Contours, 0, color , 2,cv::LINE_AA);
 	
 	cv::imshow(name, img);
 }
@@ -1234,54 +1253,68 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 		// calculateUV(realRect, tri.verts, tri.vertCount);
 		// listTri.push_back(tri);
 #ifdef _cv_debug_yzy
-		// drawCVPoints(imgOriginPoints,"origin points",pOrigin,count,cv::Scalar(255, 255, 1));
-		// drawCVPoints(imgOriginReduce,"reduce points",reducePoly,count,cv::Scalar(0, 255, 0));
-		// drawCVPoints(imgOriginExpand,"expand points",expandPoly,count,cv::Scalar(255, 0, 0));
-		 // drawCVTriangle( imgTri,"triangles", tri, realRect,count++,cv::Scalar(0, 0, 255));
+		 drawCVPoints(imgOriginPoints,"origin points",pOrigin,count,cv::Scalar(255, 255, 1));
+		 drawCVPoints(imgOriginReduce,"reduce points",reducePoly,count,cv::Scalar(0, 255, 0));
+		 drawCVPoints(imgOriginExpand,"expand points",expandPoly,count,cv::Scalar(255, 0, 0));
+		  //drawCVTriangle( imgTri,"triangles", tri, realRect,count++,cv::Scalar(0, 0, 255));
 #endif
 	}
 
+	
 	// merge poly
 	 
 	std::vector<Triangles> listMergedTri;
 	std::vector<std::vector<Vec2>> mergeExpandPolygonList;
 	MergePolygons(expandLists, mergeExpandPolygonList);
 
-#ifdef _cv_debug_yzy
+#ifdef _cv_debug_yzy	
 	cv::Mat imgOriginExpandMerge = cv::imread(this->_image->getFileName());
-	cv::Mat imgTriMerge = cv::imread(this->_image->getFileName());
-#endif
 	for (std::vector<Vec2>& mergePoly : mergeExpandPolygonList)
 	{
-		Triangles mergeTri;
-		// triangulateByPolypartition(mergePoly, mergeTri);
-		triangulateByTriangle(mergePoly, mergeTri);
-		// triangulateByPoly2Tri(mergePoly, mergeTri);
-		//triangulateByTrianglePP(mergePoly, mergeTri);
+		//if (mergePoly.size() < 10)
+		{
+			drawCVPoints(imgOriginExpandMerge, "merged expand points", mergePoly, count, cv::Scalar(255, 255, 1));
+		}
+	
+	}
+	//cv::waitKey();
+	2023年12月4日21:01:07 不知道为啥，哪个去重的逻辑不生效？？？？
+#endif
+
+#ifdef _cv_debug_yzy	
+	cv::Mat imgTriMerge = cv::imread(this->_image->getFileName());
+#endif
+
+	for (std::vector<Vec2>& mergePoly : mergeExpandPolygonList)
+	{
+		Triangles mergeTri; 
+		triangulateByTriangle(mergePoly, mergeTri); 
 		calculateUV(realRect, mergeTri.verts, mergeTri.vertCount);
 		listMergedTri.push_back(mergeTri);
-#ifdef _cv_debug_yzy
-		drawCVPoints(imgOriginExpandMerge, "merged expand points", mergePoly, count, cv::Scalar(255, 255, 1));
+#ifdef _cv_debug_yzy	
 		drawCVTriangle(imgTriMerge, "merged triangles", mergeTri, realRect, count++, cv::Scalar(0, 0, 255));
 #endif
 	}
+
+
+
 	
 	Triangles totalTri = MergeTriangles(listMergedTri, true);
 #ifdef _cv_debug_yzy
-	for (int i =0 ; i < totalTri.vertCount; i ++)
-	{
-		printf("tri vert %d:(%d,%d)\n",i,(int)totalTri.verts[i].vertices.x,(int)totalTri.verts[i].vertices.y);
-	}
+	//for (int i =0 ; i < totalTri.vertCount; i ++)
+	//{
+	//	printf("tri vert %d:(%d,%d)\n",i,(int)totalTri.verts[i].vertices.x,(int)totalTri.verts[i].vertices.y);
+	//}
 
-	for (int i =0 ; i < totalTri.indexCount/3; i ++)
-	{
-		printf("tri index %d:(%d, %d, %d )\n",
-			i,
-			totalTri.indices[i*3],
-			totalTri.indices[i*3+1],
-			totalTri.indices[i*3+2] 
-			);
-	}
+	//for (int i =0 ; i < totalTri.indexCount/3; i ++)
+	//{
+	//	printf("tri index %d:(%d, %d, %d )\n",
+	//		i,
+	//		totalTri.indices[i*3],
+	//		totalTri.indices[i*3+1],
+	//		totalTri.indices[i*3+2] 
+	//		);
+	//}
 #endif
 	
 	infoForFill.triangles = totalTri;
