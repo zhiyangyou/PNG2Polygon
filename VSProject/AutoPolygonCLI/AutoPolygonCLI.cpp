@@ -29,6 +29,7 @@ void print2File(PolygonInfo& info, const char* filename)
 int main()
 {
 	std::cout << "Hello AutoPolygon... \n";
+	//PNGImage img("testImages/test2.png");
 	PNGImage img("testImages/tp4.png");
 	// PNGImage img("testImages/1.png");
 	//PNGImage img("E:\\_WorkSpace_E\\_GitHub\\PolygonPNG\\Unity\\UnityProject\\UnityAutoPolygon\\Assets\\TestImages\\test3.png");
@@ -38,7 +39,7 @@ int main()
 	for (int i = 1; i <= 1; ++i)
 	{
 		// int epsilon = i*2;
-		float epsilon = 8.0f;
+		float epsilon = 10.0f;
 		// epsilon = 53.5f;
 		PolygonInfo info;
 		p.generateTriangles(info, Rect::ZERO, epsilon);

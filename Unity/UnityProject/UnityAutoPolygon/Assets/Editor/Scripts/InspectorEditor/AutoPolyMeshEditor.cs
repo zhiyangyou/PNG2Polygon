@@ -37,9 +37,9 @@ public class YourMonoBehaviorEditor : Editor
         poly.isDrawGizmos = EditorGUILayout.Toggle("gizmos", poly.isDrawGizmos);
         poly.epsilon = EditorGUILayout.Slider("epsilon", poly.epsilon, 1.0f, 100.0f);
         poly.alphaThreshold = EditorGUILayout.Slider("alphaThreshold", poly.alphaThreshold, 0f, 128f);
-        Debug.Log($"epsilon:{poly.epsilon}  alphaThreshold:{poly.alphaThreshold}");
         if (EditorGUI.EndChangeCheck())
         {
+            Debug.Log($"epsilon:{poly.epsilon}  alphaThreshold:{poly.alphaThreshold}");
             RefreshMesh();
             EditorUtility.SetDirty(poly);
         }
