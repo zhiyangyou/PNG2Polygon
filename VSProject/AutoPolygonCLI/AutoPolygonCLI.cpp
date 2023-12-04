@@ -39,7 +39,7 @@ int main()
 	for (int i = 1; i <= 1; ++i)
 	{
 		// int epsilon = i*2;
-		float epsilon = 10.0f;
+		float epsilon = 1.0f;
 		// epsilon = 53.5f;
 		PolygonInfo info;
 		p.generateTriangles(info, Rect::ZERO, epsilon);

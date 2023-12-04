@@ -463,7 +463,7 @@ std::vector<std::vector<Vec2>>  AutoPolygon::traceByCV(float threshold)
 		std::vector<cv::Point>& contourPoints = contours[i];
 		std::vector<Vec2> v;
 		for (const auto& point : contourPoints) {
-			v.push_back(Vec2(point.x, point.y));
+			v.emplace_back(point.x, point.y);
 		}
 		ret.push_back(v);
 	}
@@ -800,7 +800,7 @@ std::vector<Vec2> AutoPolygon::expand(const std::vector<Vec2>& points, const Rec
 		subj << ClipperLib::IntPoint(static_cast<ClipperLib::cInt>(pt.x * PRECISION), static_cast<ClipperLib::cInt>(pt.y * PRECISION));
 	}
 	ClipperLib::ClipperOffset co;
-	co.AddPath(subj, ClipperLib::jtMiter, ClipperLib::etClosedPolygon);
+	co.AddPath(subj, ClipperLib::jtMiter, ClipperLib::etClosedPolygon); 2023年12月4日23:58:41  调试expand 导致一些东西丢失的问题
 	co.Execute(solution, epsilon * PRECISION);
 
 	ClipperLib::PolyNode* p = solution.GetFirst();
@@ -1251,6 +1251,11 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	for (std::vector<Vec2>& pOrigin : originpolygons)
 	{
 		std::vector<Vec2> reducePoly = reduce(pOrigin, epsilon);
+		std::vector<Vec2> uniqueReducePoly;
+		if (removeDuplicateVec2(reducePoly, uniqueReducePoly))
+		{
+			int a = 0;
+		}
 		std::vector<Vec2> expandPoly = expand(reducePoly, realRect, epsilon);
 		expandLists.push_back(expandPoly);
 #ifdef _cv_debug_yzy
