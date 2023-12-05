@@ -2,7 +2,7 @@
 
 **效果图：**
 
-![](https://github.com/zhiyangyou/PNG2Polygon/blob/dev/docImages/xiaoguotu.gif)
+![](https://github.com/zhiyangyou/PNG2Polygon/blob/main/docImages/xiaoguotu.gif)
 
 **为什么做：**
 
