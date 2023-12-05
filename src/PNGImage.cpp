@@ -58,3 +58,20 @@ std::string PNGImage::getFileName()
 {
 	return _fileName;
 }
+
+size_t  PNGImage::getPixelArea(float threshold_alpha, int startX, int startY, int width, int height)
+{
+	unsigned char uc_threshold_alpha = (unsigned char)threshold_alpha;
+	size_t pixelCountAboveThreshold = 0;
+
+	auto* image = _data;
+	for (int y = startY; y < height + startY; y++) {
+		for (int x = startX; x < width + startX; x++) {
+			if (image[(y * width + x) * 4 + 3] > uc_threshold_alpha) {
+				pixelCountAboveThreshold++;
+			}
+		}
+	}
+	return pixelCountAboveThreshold;
+
+}

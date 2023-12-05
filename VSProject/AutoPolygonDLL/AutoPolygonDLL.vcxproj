@@ -101,12 +101,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)..\..\Unity\Plugin\win32</OutDir>
+    <OutDir>$(SolutionDir)..\..\Unity\UnityProject\UnityAutoPolygon\NativePlugin\win32</OutDir>
     <LibraryPath>$(SolutionDir)..\..\src\opencv\lib\debug;C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\ucrt\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)..\..\src;$(SolutionDir)..\..\src\opencv\include;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)..\..\Unity\Plugin\win32</OutDir>
+    <OutDir>$(SolutionDir)..\..\Unity\UnityProject\UnityAutoPolygon\NativePlugin\win32</OutDir>
     <LibraryPath>$(SolutionDir)..\..\src\opencv\lib;C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\ucrt\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -181,14 +181,17 @@
       </PrecompiledHeaderFile>
       <UndefinePreprocessorDefinitions>_cv_debug_yzy</UndefinePreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <ProgramDataBaseFileName />
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>ippicvmt.lib;opencv_imgproc480.lib;opencv_core480.lib;IlmImf.lib;opencv_videoio480.lib;opencv_objdetect480.lib;opencv_flann480.lib;opencv_features2d480.lib;opencv_imgcodecs480.lib;opencv_stitching480.lib;ade.lib;opencv_ml480.lib;opencv_photo480.lib;opencv_video480.lib;opencv_highgui480.lib;libwebp.lib;libtiff.lib;libopenjp2.lib;libjpeg-turbo.lib;libpng.lib;ippiw.lib;ittnotify.lib;zlib.lib;quirc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ProgramDatabaseFile />
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)\..\..\src\opencv\bin\*" "$(TargetDir)" /Y /S</Command>

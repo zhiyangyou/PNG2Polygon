@@ -95,19 +95,19 @@ void ResetTriangulateioMemory(triangulateio& io)
 void DisposeTriangulateioMemory(triangulateio& io)
 {
 	SAFE_FREE_MEMORY(io.pointlist)
-	SAFE_FREE_MEMORY(io.pointattributelist)
-	SAFE_FREE_MEMORY(io.pointmarkerlist)
-	SAFE_FREE_MEMORY(io.trianglelist)
-	SAFE_FREE_MEMORY(io.triangleattributelist)
-	SAFE_FREE_MEMORY(io.trianglearealist)
-	SAFE_FREE_MEMORY(io.neighborlist)
-	SAFE_FREE_MEMORY(io.segmentlist)
-	SAFE_FREE_MEMORY(io.segmentmarkerlist)
-	SAFE_FREE_MEMORY(io.holelist)
-	SAFE_FREE_MEMORY(io.regionlist)
-	SAFE_FREE_MEMORY(io.edgelist)
-	SAFE_FREE_MEMORY(io.edgemarkerlist)
-	SAFE_FREE_MEMORY(io.normlist)
+		SAFE_FREE_MEMORY(io.pointattributelist)
+		SAFE_FREE_MEMORY(io.pointmarkerlist)
+		SAFE_FREE_MEMORY(io.trianglelist)
+		SAFE_FREE_MEMORY(io.triangleattributelist)
+		SAFE_FREE_MEMORY(io.trianglearealist)
+		SAFE_FREE_MEMORY(io.neighborlist)
+		SAFE_FREE_MEMORY(io.segmentlist)
+		SAFE_FREE_MEMORY(io.segmentmarkerlist)
+		SAFE_FREE_MEMORY(io.holelist)
+		SAFE_FREE_MEMORY(io.regionlist)
+		SAFE_FREE_MEMORY(io.edgelist)
+		SAFE_FREE_MEMORY(io.edgemarkerlist)
+		SAFE_FREE_MEMORY(io.normlist)
 }
 
 
@@ -800,7 +800,7 @@ std::vector<Vec2> AutoPolygon::expand(const std::vector<Vec2>& points, const Rec
 		subj << ClipperLib::IntPoint(static_cast<ClipperLib::cInt>(pt.x * PRECISION), static_cast<ClipperLib::cInt>(pt.y * PRECISION));
 	}
 	ClipperLib::ClipperOffset co;
-	co.AddPath(subj, ClipperLib::jtMiter, ClipperLib::etClosedPolygon); 2023年12月4日23:58:41  调试expand 导致一些东西丢失的问题
+	co.AddPath(subj, ClipperLib::jtMiter, ClipperLib::etClosedPolygon);
 	co.Execute(solution, epsilon * PRECISION);
 
 	ClipperLib::PolyNode* p = solution.GetFirst();
@@ -987,8 +987,8 @@ void AutoPolygon::triangulateByTriangle(const std::vector<Vec2>& boundaryPoints,
 
 	struct triangulateio in, out;
 	ResetTriangulateioMemory(in);
-	ResetTriangulateioMemory(out); 
-	
+	ResetTriangulateioMemory(out);
+
 	in.numberofpoints = boundaryPoints.size();
 	in.pointlist = (REAL*)malloc(in.numberofpoints * 2 * sizeof(REAL));
 
@@ -1034,7 +1034,7 @@ void AutoPolygon::triangulateByTriangle(const std::vector<Vec2>& boundaryPoints,
 		tri.indices[i * 3 + 1] = i2;
 		tri.indices[i * 3 + 2] = i3;
 	}
-	
+
 	for (int i = 0; i < out.numberofpoints; ++i)
 	{
 		tri.verts[i].vertices.x = out.pointlist[i * 2];
@@ -1214,12 +1214,12 @@ void drawCVTriangle(cv::Mat& imageTri, const char* name, Triangles& tri, const R
 	cv::polylines(imageTri, trianglePoints, true, color, 3, cv::LINE_AA);
 	char buf[128];
 	sprintf_s(buf, sizeof(buf), "img+Triangle%d", i);
-	
+
 	cv::imshow(name, imageTri);
 }
 
 void drawCVPoints(cv::Mat& img, const char* name, std::vector<Vec2>& ps, int index, cv::Scalar color)
-{ 
+{
 	std::vector<cv::Point> cvPoints;
 	std::vector<std::vector<cv::Point>>  Contours;
 	for (Vec2& v : ps)
@@ -1237,8 +1237,9 @@ void drawCVPoints(cv::Mat& img, const char* name, std::vector<Vec2>& ps, int ind
 
 void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /*= Rect::ZERO*/, float epsilon /*= 2.0f*/, float threshold /*= 0.05f*/)
 {
-	Rect realRect = getRealRect(rect); 
-	auto originpolygons = traceByCV(threshold);  
+	Rect realRect = getRealRect(rect);
+	_realRect = realRect;
+	auto originpolygons = traceByCV(threshold);
 	int count = 0;
 #ifdef _cv_debug_yzy 
 	cv::Mat imgOriginPoints = cv::imread(this->_image->getFileName());
@@ -1277,11 +1278,7 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	cv::Mat imgOriginExpandMerge = cv::imread(this->_image->getFileName());
 	for (std::vector<Vec2>& mergePoly : mergeExpandPolygonList)
 	{
-		//if (mergePoly.size() < 10)
-		{
-			drawCVPoints(imgOriginExpandMerge, "merged expand points", mergePoly, count, cv::Scalar(255, 255, 1));
-		}
-
+		drawCVPoints(imgOriginExpandMerge, "merged expand points", mergePoly, count, cv::Scalar(255, 255, 1));
 	}
 	cv::waitKey();
 

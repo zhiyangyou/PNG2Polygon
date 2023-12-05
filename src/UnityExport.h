@@ -8,20 +8,33 @@
 extern "C" {
 
 	typedef void (*MeshDataWriteCallback)(void* data, int dataLen, int dataType);
-	
+	typedef void (*OverdrawInfo)(float triangleArea, int alphaThresholdPixels, float fullArea);
+
 	EXPORT_DLL int AutoPolygonGenerate(
-		unsigned char* data,		//  像素数据
-		int dataLen,					//  像素数据长度
+		unsigned char* data,
+		int dataLen,
 		int width,
 		int height,
-		char* name,						// 名字
-		float rect_left,					// rect的左下角点的x
-		float rect_bottom,			// rect的左下角点的y
-		float rect_width,				// rect的width
-		float rect_height,				// rect的height
-		float epsilon,					// 算法容差
-		float alpha_threshold,		// alpha阈值
-		
-		MeshDataWriteCallback callback
+		char* name,
+		int rect_left,
+		int rect_bottom,
+		int rect_width,
+		int rect_height,
+		float epsilon,
+		float alpha_threshold,
+		MeshDataWriteCallback callback,
+		OverdrawInfo overdrawCallback
+	);
+
+	EXPORT_DLL int AutoPolygonGenerateByPngFile(
+		char* png32FileNameFullPath,
+		int rect_left,
+		int rect_bottom,
+		int rect_width,
+		int rect_height,
+		float epsilon,
+		float alpha_threshold,
+		MeshDataWriteCallback callback,
+		OverdrawInfo overdrawCallback
 	);
 }

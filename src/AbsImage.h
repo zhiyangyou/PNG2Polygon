@@ -6,6 +6,7 @@ class AbsImage
 {
 public:
 	virtual ~AbsImage() {};
+	virtual size_t getPixelArea(float threshold_alpha, int startX, int startY, int width, int height) { return 0; }
 	virtual unsigned char* getData() = 0;
 	virtual size_t           getDataLen() = 0;
 	virtual int               getWidth() = 0;

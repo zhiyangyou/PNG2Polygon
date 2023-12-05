@@ -16209,8 +16209,9 @@ char** argv;
             1000l * (tv6.tv_sec - tv0.tv_sec) +
             (tv6.tv_usec - tv0.tv_usec) / 1000l);
 #endif /* not NO_TIMER */
-
+#if  _cv_debug_yzy
         statistics(&m, &b);
+#endif
     }
 
 #ifndef REDUCED

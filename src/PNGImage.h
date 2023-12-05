@@ -4,6 +4,7 @@ class PNGImage : public  AbsImage
 {
 
 public:
+	PNGImage() = delete;
 	PNGImage(const char* filename);
 	virtual ~PNGImage();
 
@@ -19,5 +20,6 @@ public:
 	int getWidth() override;
 	int getHeight() override;
 	std::string getFileName() override;
+	size_t getPixelArea(float threshold_alpha, int startX, int startY, int width, int height) override;
 
 };

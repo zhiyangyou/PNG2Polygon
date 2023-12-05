@@ -294,6 +294,11 @@ public:
 	 * @endcode
 	 */
 	static PolygonInfo generatePolygon(AbsImage * image, const Rect& rect = Rect::ZERO, float epsilon = 2.0f, float threshold = 0.05f);
+
+public:
+	Rect getRealRect() { return _realRect; }
+	float getTotalArea() { return _realRect.size.width * _realRect.size.height; }
+	float getTotalTrianglesArea();
 protected:
 	Vec2 findFirstNoneTransparentPixel(const Rect& rect, float threshold);
 	std::vector<Vec2> marchSquare(const Rect& rect, const Vec2& first, float threshold);
@@ -310,7 +315,7 @@ protected:
 
 	//real rect is the size that is in scale with the texture file
 	Rect getRealRect(const Rect& rect);
-
+	Rect _realRect;
 	AbsImage* _image;
 	unsigned char* _data;
 	unsigned int _width;
