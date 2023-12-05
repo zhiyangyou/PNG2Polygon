@@ -32,6 +32,8 @@ THE SOFTWARE.
 #include <string>
 #include <vector>
 #include <memory>
+#include <triangle/triangle.h>
+
 #include "Vec2.h"
 #include "CCGeometry.h"
 #include "ccTypes.h"
@@ -234,65 +236,14 @@ public:
 	 */
 	std::vector<Vec2> expand(const std::vector<Vec2>& points, const Rect& rect, float epsilon);
 
-	/**
-	 * Triangulate the input points into triangles for rendering
-	 * using poly2tri
-	 * @warning points must be closed loop, cannot have 2 points sharing the same position and cannot intersect itself
-	 * @param   points  a vector of vec2 points as input
-	 * @return  a Triangles object with points and indices
-	 * @code
-	 * auto ap = AutoPolygon();
-	 * Triangles myPolygons = ap.triangulate(myPoints);
-	 * @endcode
-	 */
-	Triangles triangulateByPoly2Tri(const std::vector<Vec2>& points,Triangles& tri);
-	void triangulateByPolypartition(const std::vector<Vec2>& points,Triangles& tri);
-	void triangulateByTriangle(const std::vector<Vec2>& points,Triangles& tri);
-	//void triangulateByTrianglePP(const std::vector<Vec2>& points,Triangles& tri);
-
-	/**
-	 * calculate the UV coordinates for each points based on a texture rect
-	 * @warning This method requires the AutoPolygon object to know the texture file dimension
-	 * @param   rect    a texture rect to specify where to map the UV
-	 * @param   verts   a pointer to the verts array, served both as input and output verts
-	 * @param   count   the count for the verts array
-	 * @code
-	 * auto ap = AutoPolygon("grossini.png");
-	 * Triangles myPolygons = ap.triangulate(myPoints);
-	 * ap.calculateUV(rect, myPolygons.verts, 20);
-	 * @endcode
-	 */
+	
+	void triangulateByTriangle(void* in,Triangles& tri);
+	
 	void calculateUV(const Rect& rect, V3F_C4B_T2F* verts, size_t count);
-
-	/**
-	 * a helper function, packing trace, reduce, expand, triangulate and calculate uv in one function
-	 * @param   rect    texture rect, use Rect::ZERO for the size of the texture, default is Rect::ZERO
-	 * @param   epsilon the value used to reduce and expand, default to 2.0
-	 * @param   threshold   the value where bigger than the threshold will be counted as opaque, used in trace
-	 * @return  a PolygonInfo, to use with sprite
-	 * @code
-	 * auto ap = AutoPolygon("grossini.png");
-	 * PolygonInfo myInfo = ap.generateTriangles();//use all default values
-	 * auto sp1 = Sprite::create(myInfo);
-	 * polygonInfo myInfo2 = ap.generateTriangles(Rect::ZERO, 5.0, 0.1);//ap can be reused to generate another set of PolygonInfo with different settings
-	 * auto sp2 = Sprite::create(myInfo2);
-	 * @endcode
-	 */
+	
 	PolygonInfo generateTriangles(const Rect& rect = Rect::ZERO, float epsilon = 2.0f, float threshold = 0.05f);
 	void generateTriangles(PolygonInfo& infoForFill, const Rect& rect = Rect::ZERO, float epsilon = 2.0f, float threshold = 0.05f);
-
-	/**
-	 * a helper function, packing autoPolygon creation, trace, reduce, expand, triangulate and calculate uv in one function
-	 * @warning if you want to repetitively generate polygons, consider create an AutoPolygon object, and use generateTriangles function, as it only reads the file once
-	 * @param   filename     A path to image file, e.g., "scene1/monster.png".
-	 * @param   rect    texture rect, use Rect::ZERO for the size of the texture, default is Rect::ZERO
-	 * @param   epsilon the value used to reduce and expand, default to 2.0
-	 * @param   threshold   the value where bigger than the threshold will be counted as opaque, used in trace
-	 * @return  a PolygonInfo, to use with sprite
-	 * @code
-	 * auto sp = Sprite::create(AutoPolygon::generatePolygon("grossini.png"));
-	 * @endcode
-	 */
+	Triangles MergePolygons(std::vector<std::vector<Vec2>>& polygons, const Rect& realRect);
 	static PolygonInfo generatePolygon(AbsImage * image, const Rect& rect = Rect::ZERO, float epsilon = 2.0f, float threshold = 0.05f);
 
 public:

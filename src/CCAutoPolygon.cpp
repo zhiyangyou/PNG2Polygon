@@ -107,8 +107,8 @@ void DisposeTriangulateioMemory(triangulateio& io, bool isOutIO)
 		{
 			SAFE_FREE_MEMORY(io.holelist) //  out.holelist copy pointer from in.holelist, although the pointer is copied to the        output structure for your convenience.
 		}
-		
-		SAFE_FREE_MEMORY(io.regionlist)
+
+	SAFE_FREE_MEMORY(io.regionlist)
 		SAFE_FREE_MEMORY(io.edgelist)
 		SAFE_FREE_MEMORY(io.edgemarkerlist)
 		SAFE_FREE_MEMORY(io.normlist)
@@ -210,28 +210,96 @@ Triangles MergeTriangles(std::vector<Triangles>& list, bool releasListTriMemory)
 
 
 
-void CollectPolyNodeData(ClipperLib::PolyNode* node, std::vector<std::vector<Vec2>>& mergedPolygons)
+void CollectPolyNodeData(
+	ClipperLib::PolyNode* node,
+	triangulateio& in,
+	int& curTotal_PointsNumber,
+	int& curTotal_Segments,
+	int& curTotal_Holes,
+	int& curTotal_SegmentMarkers
+)
 {
 
-	std::vector<Vec2> poly;
+	std::vector<Vec2> boundaryPoints;
 
 	bool isHole = node->IsHole();
+	//isHole = false;
 	for (const ClipperLib::IntPoint& p : node->Contour)
 	{
-		poly.emplace_back(p.X, p.Y, isHole);
+		boundaryPoints.emplace_back(p.X, p.Y, isHole);
 	}
-	if (!poly.empty())
+	if (!boundaryPoints.empty())
 	{
-		mergedPolygons.emplace_back(poly);
+		//points
+		int old_CurTotal_PointsNumber = curTotal_PointsNumber;
+		curTotal_PointsNumber += boundaryPoints.size();
+		in.numberofpoints = curTotal_PointsNumber;
+		in.pointlist = (TRI_REAL*)realloc(in.pointlist, in.numberofpoints * 2 * sizeof(TRI_REAL));
+
+		for (int i = old_CurTotal_PointsNumber; i < in.numberofpoints; i++) {
+			in.pointlist[i * 2] = boundaryPoints[i - old_CurTotal_PointsNumber].x;
+			in.pointlist[i * 2 + 1] = boundaryPoints[i - old_CurTotal_PointsNumber].y;
+		}
+
+		//segments
+		int old_curTotal_Segments = curTotal_Segments;
+		curTotal_Segments += boundaryPoints.size();
+		in.numberofsegments = curTotal_Segments;
+		in.segmentlist = (int*)realloc(in.segmentlist, in.numberofsegments * 2 * sizeof(int));
+
+		int firstIndex = old_curTotal_Segments + 1;
+		for (int i = old_curTotal_Segments; i < in.numberofsegments; i++) {
+			in.segmentlist[i * 2] = i + 1;
+			in.segmentlist[i * 2 + 1] = ((i + 1) % in.numberofpoints) + 1; //  index start from 1 , not zero  haowuyu ...
+		}
+
+		in.segmentlist[(in.numberofsegments - 1) * 2 + 1] = firstIndex;
+		for (int i = old_curTotal_Segments; i < in.numberofsegments; i++) {
+			printf("(%d-->%d)\n", in.segmentlist[i * 2], in.segmentlist[i * 2 + 1]);
+		}
+		printf("-----------------------\n");
+
+		//holes
+		if (isHole)
+		{
+			int old_curTotal_Holes = curTotal_Holes;
+			curTotal_Holes += boundaryPoints.size();
+			in.numberofholes = curTotal_Holes;
+			in.holelist = (TRI_REAL*)realloc(in.holelist, in.numberofholes * 2 * sizeof(TRI_REAL));
+			for (int i = old_curTotal_Holes; i < in.numberofholes; i++) {
+				in.holelist[i * 2] = (double)boundaryPoints[i - old_curTotal_Holes].x;
+				in.holelist[i * 2 + 1] = (double)boundaryPoints[i - old_curTotal_Holes].y;
+			}
+		}
+
+		//if (!isHole)
+		//{
+				// segments markers
+		int old_curTotal_SegmentMarkers = curTotal_SegmentMarkers;
+		curTotal_SegmentMarkers += boundaryPoints.size();
+		in.segmentmarkerlist = (int*)malloc(in.numberofsegments * sizeof(int));
+		for (int i = old_curTotal_SegmentMarkers; i < in.numberofsegments; i++) {
+			in.segmentmarkerlist[i] = 1;  // 标记这是一个约束边
+		}
+		//}
+
 	}
+
 	for (int i = 0; i < node->ChildCount(); i++)
 	{
-		CollectPolyNodeData(node->Childs[i], mergedPolygons);
+		CollectPolyNodeData(
+			node->Childs[i],
+			in,
+			curTotal_PointsNumber,
+			curTotal_Segments,
+			curTotal_Holes,
+			curTotal_SegmentMarkers
+		);
 	}
 
 }
 
-void MergePolygons(std::vector<std::vector<Vec2>>& polygons, std::vector<std::vector<Vec2>>& mergedPolygons)
+Triangles AutoPolygon::MergePolygons(std::vector<std::vector<Vec2>>& polygons, const Rect& realRect)
 {
 	using Paths = std::vector<ClipperLib::IntPoint>;
 
@@ -253,26 +321,46 @@ void MergePolygons(std::vector<std::vector<Vec2>>& polygons, std::vector<std::ve
 	ClipperLib::PolyTree solution;
 	clipper.Execute(ClipperLib::ctUnion, solution, ClipperLib::pftNonZero, ClipperLib::pftEvenOdd);
 
-	mergedPolygons.clear();
+	triangulateio in;
+	ResetTriangulateioMemory(in);
+	Triangles mergeTri;
+
+
+	int curTotal_PointsNumber = 0;
+	int curTotal_Segments = 0;
+	int curTotal_Holes = 0;
+	int curTotal_SegmentMarkers = 0;
 
 	for (int i = 0; i < solution.ChildCount(); i++)
 	{
 		ClipperLib::PolyNode* node = solution.Childs[i];
-		CollectPolyNodeData(node, mergedPolygons);
+		CollectPolyNodeData(
+			node,
+			in,
+			curTotal_PointsNumber,
+			curTotal_Segments,
+			curTotal_Holes,
+			curTotal_SegmentMarkers
+		);
 	}
 
-	std::vector<Vec2> uniquePoly;
-	for (auto& mergedPolygon : mergedPolygons)
-	{
-		auto& oldPoly = mergedPolygon;
-		uniquePoly.clear();
+	//std::vector<Vec2> uniquePoly;
+	//for (auto& mergedPolygon : mergedPolygons)
+	//{
+	//	auto& oldPoly = mergedPolygon;
+	//	uniquePoly.clear();
 
-		if (removeDuplicateVec2(oldPoly, uniquePoly))
-		{
-			mergedPolygon = uniquePoly;
-		}
-	}
-	int a = 0;
+	//	2023年12月5日22:47 : 24 判空移除
+	//		if (removeDuplicateVec2(oldPoly, uniquePoly))
+	//		{
+	//			mergedPolygon = uniquePoly;
+	//		}
+	//}
+
+	triangulateByTriangle((void*)&in, mergeTri);
+	calculateUV(realRect, mergeTri.verts, mergeTri.vertCount);
+	DisposeTriangulateioMemory(in, false);
+	return mergeTri;
 }
 
 
@@ -842,187 +930,16 @@ std::vector<Vec2> AutoPolygon::expand(const std::vector<Vec2>& points, const Rec
 	return outPoints;
 }
 
-/*
-void AutoPolygon::triangulateByTrianglePP(const std::vector<Vec2>& points, Triangles& tri)
+
+
+void AutoPolygon::triangulateByTriangle(/*const std::vector<Vec2>& boundaryPoints,*/ void* pIn, Triangles& tri)
 {
-	//using namespace  tpp;
-	std::vector<tpp::Delaunay::Point> delaunayInput;
+	triangulateio& in = *((triangulateio*)pIn);
 
-	for (auto & p : points)
-	{
-		delaunayInput.push_back(tpp::Delaunay::Point(p.x, p.y));
-	}
-	// use standard triangulation
-	tpp::Delaunay trGenerator(delaunayInput);
-
-	// trGenerator.setAlgorithm(tpp::Incremental);
-	// trGenerator.setAlgorithm(tpp::Sweepline);
-	trGenerator.setAlgorithm(tpp::DivideConquer);
-	// std::vector<float> maxAreasConstraint;
-	// maxAreasConstraint.push_back(1000000.0f);
-	// trGenerator.setRegionsConstraint(delaunayInput,maxAreasConstraint);
-	trGenerator.setSegmentConstraint(delaunayInput);
-
-	// trGenerator.setcon
-
-	trGenerator.Triangulate();
-
-
-
-	// iterate over triangles
-	int vertCount = trGenerator.verticeCount();
-	int indexCount = trGenerator.triangleCount() * 3;
-	// now that we know the size of verts and indices we can create the buffers
-	V3F_C4B_T2F* vertsBuf = new (std::nothrow) V3F_C4B_T2F[vertCount];
-
-
-	unsigned short* indicesBuf = new (std::nothrow) unsigned short[indexCount];
-	int triCount = 0;
-	for (tpp::FaceIterator fit = trGenerator.fbegin(); fit != trGenerator.fend(); ++fit)
-	{
-		int vertexIdx1 = fit.Org();
-		int vertexIdx2 = fit.Dest();
-		int vertexIdx3 = fit.Apex();
-		indicesBuf[triCount * 3] = vertexIdx1;
-		indicesBuf[triCount * 3 + 1] = vertexIdx2;
-		indicesBuf[triCount * 3 + 2] = vertexIdx3;
-
-		// access point's coordinates:
-		vertsBuf[vertexIdx1].vertices.x = (float) delaunayInput[vertexIdx1][1];
-		vertsBuf[vertexIdx1].vertices.y = (float) delaunayInput[vertexIdx1][1];
-		vertsBuf[vertexIdx2].vertices.x = (float) delaunayInput[vertexIdx2][0];
-		vertsBuf[vertexIdx2].vertices.y = (float) delaunayInput[vertexIdx2][1];
-		vertsBuf[vertexIdx3].vertices.x = (float) delaunayInput[vertexIdx3][0];
-		vertsBuf[vertexIdx3].vertices.y = (float) delaunayInput[vertexIdx3][1];
-
-		triCount++;
-	}
-	tri.indexCount = indexCount;
-	tri.vertCount= vertCount;
-	tri.indices = indicesBuf;
-	tri.verts = vertsBuf;
-}
-*/
-Triangles AutoPolygon::triangulateByPoly2Tri(const std::vector<Vec2>& points, Triangles& tri)
-{
-	// if there are less than 3 points, then we can't triangulate
-	if (points.size() < 3)
-	{
-		assert("AUTOPOLYGON: cannot triangulate %s with less than 3 points", _filename.c_str());
-		return Triangles();
-	}
-	std::vector<p2t::Point*> p2points;
-	for (const auto& pt : points)
-	{
-		p2t::Point* p = new (std::nothrow) p2t::Point(pt.x, pt.y);
-		p2points.push_back(p);
-	}
-	p2t::CDT cdt(p2points);
-	cdt.Triangulate();
-	std::vector<p2t::Triangle*> tris = cdt.GetTriangles();
-
-	// we won't know the size of verts and indices until we process all of the triangles!
-	std::vector<V3F_C4B_T2F> verts;
-	std::vector<unsigned short> indices;
-
-	unsigned short idx = 0;
-	unsigned short vdx = 0;
-
-	for (const auto& ite : tris)
-	{
-		for (int i = 0; i < 3; ++i)
-		{
-			auto p = ite->GetPoint(i);
-			auto v3 = Vec3((float)p->x, (float)p->y, 0);
-			bool found = false;
-			unsigned short j;
-			auto length = vdx;
-			for (j = 0; j < length; j++)
-			{
-				if (verts[j].vertices == v3)
-				{
-					found = true;
-					break;
-				}
-			}
-			if (found)
-			{
-				//if we found the same vertex, don't add to verts, but use the same vertex with indices
-				indices.push_back(j);
-				idx++;
-			}
-			else
-			{
-				//vert does not exist yet, so we need to create a new one,
-				auto c4b = Color4B(255, 255, 25, 255);
-				auto t2f = Tex2F(0, 0); // don't worry about tex coords now, we calculate that later
-				V3F_C4B_T2F vert = { v3,c4b,t2f };
-				verts.push_back(vert);
-				indices.push_back(vdx);
-				idx++;
-				vdx++;
-			}
-		}
-	}
-	for (auto j : p2points)
-	{
-		delete j;
-	};
-
-	// now that we know the size of verts and indices we can create the buffers
-	V3F_C4B_T2F* vertsBuf = new (std::nothrow) V3F_C4B_T2F[verts.size()];
-	memcpy(vertsBuf, verts.data(), verts.size() * sizeof(V3F_C4B_T2F));
-
-	unsigned short* indicesBuf = new (std::nothrow) unsigned short[indices.size()];
-	memcpy(indicesBuf, indices.data(), indices.size() * sizeof(short));
-
-	// Triangles should really use std::vector and not arrays for verts and indices. 
-	// Then the above memcpy would not be necessary
-	Triangles triangles = { vertsBuf, indicesBuf, (unsigned int)verts.size(), (unsigned int)indices.size() };
-	tri = triangles;
-	return triangles;
-}
-
-void AutoPolygon::triangulateByTriangle(const std::vector<Vec2>& boundaryPoints, Triangles& tri)
-{
-	bool isHole = boundaryPoints[0].isHole;
-	struct triangulateio in, out;
-	ResetTriangulateioMemory(in);
+	char options[] = "p";
+	struct triangulateio  out;
 	ResetTriangulateioMemory(out);
 
-	in.numberofpoints = boundaryPoints.size();
-	in.pointlist = (TRI_REAL*)malloc(in.numberofpoints * 2 * sizeof(TRI_REAL));
-
-	for (int i = 0; i < in.numberofpoints; i++) {
-		in.pointlist[i * 2] = boundaryPoints[i].x;
-		in.pointlist[i * 2 + 1] = boundaryPoints[i].y;
-	}
-
-	in.numberofsegments = in.numberofpoints;
-	in.segmentlist = (int*)malloc(in.numberofsegments * 2 * sizeof(int));
-
-	for (int i = 0; i < in.numberofsegments; i++) {
-		in.segmentlist[i * 2] = i + 1;
-		in.segmentlist[i * 2 + 1] = ((i + 1) % in.numberofpoints) + 1; //  index start from 1 , not zero  haowuyu ...
-	}
-
-	if (isHole)
-	{
-		in.numberofholes = boundaryPoints.size();
-		in.holelist = (TRI_REAL*)malloc(in.numberofholes * 2 * sizeof(TRI_REAL));
-		for (int i = 0; i < in.numberofholes; i++) {
-			in.holelist[i * 2] = (double)boundaryPoints[i].x;
-			in.holelist[i * 2 + 1] = (double)boundaryPoints[i].y;
-		}
-	}
-
-	// 设置约束标志
-
-	in.segmentmarkerlist = (int*)malloc(in.numberofsegments * sizeof(int));
-	for (int i = 0; i < in.numberofsegments; i++) {
-		in.segmentmarkerlist[i] = 1;  // 标记这是一个约束边
-	}
-	char options[] = "p";
 	::triangulate(options, &in, &out, nullptr);
 
 	int indexCount = out.numberoftriangles * 3;
@@ -1048,103 +965,8 @@ void AutoPolygon::triangulateByTriangle(const std::vector<Vec2>& boundaryPoints,
 		tri.verts[i].vertices.x = out.pointlist[i * 2];
 		tri.verts[i].vertices.y = out.pointlist[i * 2 + 1];
 	}
-
-
-	DisposeTriangulateioMemory(in, false);
-	DisposeTriangulateioMemory(out , true );
+	DisposeTriangulateioMemory(out, true);
 }
-
-
-
-void AutoPolygon::triangulateByPolypartition(const std::vector<Vec2>& points, Triangles& tri)
-{
-	TPPLPolyList triangles;
-	TPPLPoly poly;
-	poly.Init(points.size());
-	for (int i = 0; i < points.size(); i++)
-	{
-		Vec2 p = points[i];
-		poly.GetPoints()[i] = { p.x,p.y };
-	}
-	TPPLPartition tpp;
-	// if (!tpp.Triangulate_OPT(&poly,&triangles))
-	// if (!tpp.Triangulate_MONO(&poly,&triangles))
-	// tpp.
-	if (!tpp.Triangulate_EC(&poly, &triangles))
-	{
-		tri.vertCount = 0;
-		tri.indexCount = 0;
-	}
-	else
-	{
-		//TODO 优化 将list模式的三角形转换成index模式
-
-		TPPLPolyList triangles_removeHoles;
-		// tpp.RemoveHoles(&triangles,&triangles_removeHoles);
-		std::vector<TPPLPoint> uniquePoints;
-		for (TPPLPoly polyPoint : triangles)
-		{
-			for (int i = 0; i < polyPoint.GetNumPoints(); i++)
-			{
-				TPPLPoint currentPoint = polyPoint.GetPoint(i);
-				auto it = std::find_if(uniquePoints.begin(), uniquePoints.end(),
-					[&currentPoint](const TPPLPoint& p) { return TPPLPointIsEq(p, currentPoint); });
-
-				if (it == uniquePoints.end()) {
-					uniquePoints.push_back(currentPoint);
-				}
-			}
-		}
-
-		int triNum = triangles.size();
-		int indexSize = triangles.size() * 3;
-		int vertNum = uniquePoints.size();
-		tri.verts = new (std::nothrow)V3F_C4B_T2F[vertNum];
-		tri.indices = new (std::nothrow)unsigned short[indexSize];
-		tri.indexCount = indexSize;
-		tri.vertCount = vertNum;
-
-		int index = 0;
-		int foundIndex = 0;
-		bool foundInUniqueVec = false;
-		for (TPPLPoly polyPoint : triangles)
-		{
-			for (int i = 0; i < polyPoint.GetNumPoints(); i++)
-			{
-				TPPLPoint currentPoint = polyPoint.GetPoint(i);
-				foundInUniqueVec = false;
-				foundIndex = 0;
-				for (int ii = 0; ii < uniquePoints.size(); ii++)
-				{
-					if (TPPLPointIsEq(currentPoint, uniquePoints[ii]))
-					{
-						foundInUniqueVec = true;
-						foundIndex = ii;
-					}
-				}
-				if (foundInUniqueVec)
-				{
-					tri.indices[index] = foundIndex;
-				}
-				else
-				{
-					throw std::runtime_error(" impossible happend can't find point in uniquePoints ");
-				}
-				index++;
-			}
-		}
-		float imageW = this->_image->getWidth();
-		float imageH = this->_image->getHeight();
-		for (int i = 0; i < uniquePoints.size(); i++)
-		{
-			auto& p = uniquePoints[i];
-			tri.verts[i].colors = Color4B();
-			tri.verts[i].vertices = Vec3(p.x, p.y, 0.0f);
-			tri.verts[i].texCoords = { (float)p.x / imageW, (float)p.y / imageH };
-		}
-	}
-}
-
 
 
 void AutoPolygon::calculateUV(const Rect& rect, V3F_C4B_T2F* verts, size_t count)
@@ -1275,15 +1097,14 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	// merge poly
 
 	std::vector<Triangles> listMergedTri;
-	std::vector<std::vector<Vec2>> mergeExpandPolygonList;
-	MergePolygons(expandLists, mergeExpandPolygonList);
+	Triangles totalTri = MergePolygons(expandLists, realRect);
 
 #ifdef _cv_debug_yzy	
-	cv::Mat imgOriginExpandMerge = cv::imread(this->_image->getFileName());
-	for (std::vector<Vec2>& mergePoly : mergeExpandPolygonList)
-	{
-		drawCVPoints(imgOriginExpandMerge, "merged expand points", mergePoly, count, cv::Scalar(255, 255, 1));
-	}
+	//cv::Mat imgOriginExpandMerge = cv::imread(this->_image->getFileName());
+	//for (std::vector<Vec2>& mergePoly : mergeExpandPolygonList)
+	//{
+	//	drawCVPoints(imgOriginExpandMerge, "merged expand points", mergePoly, count, cv::Scalar(255, 255, 1));
+	//}
 	//cv::waitKey();
 
 #endif
@@ -1292,16 +1113,16 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	cv::Mat imgTriMerge = cv::imread(this->_image->getFileName());
 #endif
 
-	for (std::vector<Vec2>& mergePoly : mergeExpandPolygonList)
-	{
-		Triangles mergeTri;
-		triangulateByTriangle(mergePoly, mergeTri);
-		calculateUV(realRect, mergeTri.verts, mergeTri.vertCount);
-		listMergedTri.push_back(mergeTri);
-	}
-	Triangles totalTri = MergeTriangles(listMergedTri, true);
+	//for (std::vector<Vec2>& mergePoly : mergeExpandPolygonList)
+	//{
+	//	Triangles mergeTri;
+	//	triangulateByTriangle(mergePoly, mergeTri);
+	//	calculateUV(realRect, mergeTri.verts, mergeTri.vertCount);
+	//	listMergedTri.push_back(mergeTri);
+	//}
+	//Triangles totalTri = MergeTriangles(listMergedTri, true);
 #ifdef _cv_debug_yzy	
-	drawCVTriangle(imgTriMerge, "merged triangles", totalTri, cv::Scalar(0, 0, 255));
+	drawCVTriangle(imgTriMerge, "merged triangles", totalTri, cv::Scalar(0, 255, 255));
 #endif
 #ifdef _cv_debug_yzy
 
