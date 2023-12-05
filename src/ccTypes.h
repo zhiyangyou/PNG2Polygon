@@ -286,8 +286,6 @@ struct   V3F_C4B_T2F
 
 	// tex coords (2F)
 	Tex2F        texCoords;           // 8 bytes
-
-	bool isHole;							
 };
 
 /** @struct V3F_T2F

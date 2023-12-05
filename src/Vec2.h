@@ -21,11 +21,9 @@ public:
 
     float x = 0.f;
     float y = 0.f;
-    bool isHole = false;
 
     Vec2();
     Vec2(float xx, float yy);
-    Vec2(float xx, float yy, bool hole);
     Vec2(const float* array);
     Vec2(const Vec2& p1, const Vec2& p2);
     inline bool isZero() const;

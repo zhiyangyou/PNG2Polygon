@@ -244,12 +244,19 @@ void CollectPolyNodeData(
 
 	std::vector<Vec2> boundaryPoints;
 
-	bool isHole = node->IsHole();
-	//isHole = false;
+	const bool isHole = node->IsHole();
 	for (const ClipperLib::IntPoint& p : node->Contour)
 	{
-		boundaryPoints.emplace_back(p.X, p.Y, isHole);
+		boundaryPoints.emplace_back(p.X, p.Y);
 	}
+	std::vector<Vec2> uniquePoly ;
+
+	TODO 此处的 重复点处理逻辑有一点不一样！,  读取就得
+	if (removeDuplicateVec2(boundaryPoints, uniquePoly))
+	{
+		return;
+	}
+
 	if (!boundaryPoints.empty())
 	{
 		//points
@@ -274,25 +281,13 @@ void CollectPolyNodeData(
 			in.segmentlist[i * 2] = i + 1;
 			in.segmentlist[i * 2 + 1] = ((i + 1) % in.numberofpoints) + 1; //  index start from 1 , not zero  haowuyu ...
 		}
-
+#if _cv_debug_yzy
 		in.segmentlist[(in.numberofsegments - 1) * 2 + 1] = firstIndex;
 		for (int i = old_curTotal_Segments; i < in.numberofsegments; i++) {
 			printf("(%d-->%d)\n", in.segmentlist[i * 2], in.segmentlist[i * 2 + 1]);
 		}
 		printf("isHole %d-----------------------\n", isHole);
-
-		//holes
-		//if (isHole)
-		//{
-		//	int old_curTotal_Holes = curTotal_Holes;
-		//	curTotal_Holes += boundaryPoints.size();
-		//	in.numberofholes = curTotal_Holes;
-		//	in.holelist = (TRI_REAL*)realloc(in.holelist, in.numberofholes * 2 * sizeof(TRI_REAL));
-		//	for (int i = old_curTotal_Holes; i < in.numberofholes; i++) {
-		//		in.holelist[i * 2] = (double)boundaryPoints[i - old_curTotal_Holes].x;
-		//		in.holelist[i * 2 + 1] = (double)boundaryPoints[i - old_curTotal_Holes].y;
-		//	}
-		//}
+#endif
 
 		if (isHole)
 		{
