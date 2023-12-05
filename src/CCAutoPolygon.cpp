@@ -209,7 +209,29 @@ Triangles MergeTriangles(std::vector<Triangles>& list, bool releasListTriMemory)
 }
 
 
+Vec2 computeConvexHullCentroid(const std::vector<Vec2>& convexHull) {
+	// 确保凸包不为空
+	if (convexHull.empty()) {
+		// 处理空凸包的情况，这里简单返回原点
+		return Vec2(0.0f, 0.0f);
+	}
 
+	// 初始化中心点坐标
+	float centerX = 0.0f;
+	float centerY = 0.0f;
+
+	// 计算所有顶点的坐标之和
+	for (const auto& point : convexHull) {
+		centerX += point.x;
+		centerY += point.y;
+	}
+
+	// 除以顶点数量得到中心点坐标
+	centerX /= convexHull.size();
+	centerY /= convexHull.size();
+
+	return Vec2(centerX, centerY);
+}
 void CollectPolyNodeData(
 	ClipperLib::PolyNode* node,
 	triangulateio& in,
@@ -257,31 +279,44 @@ void CollectPolyNodeData(
 		for (int i = old_curTotal_Segments; i < in.numberofsegments; i++) {
 			printf("(%d-->%d)\n", in.segmentlist[i * 2], in.segmentlist[i * 2 + 1]);
 		}
-		printf("-----------------------\n");
+		printf("isHole %d-----------------------\n", isHole);
 
 		//holes
+		//if (isHole)
+		//{
+		//	int old_curTotal_Holes = curTotal_Holes;
+		//	curTotal_Holes += boundaryPoints.size();
+		//	in.numberofholes = curTotal_Holes;
+		//	in.holelist = (TRI_REAL*)realloc(in.holelist, in.numberofholes * 2 * sizeof(TRI_REAL));
+		//	for (int i = old_curTotal_Holes; i < in.numberofholes; i++) {
+		//		in.holelist[i * 2] = (double)boundaryPoints[i - old_curTotal_Holes].x;
+		//		in.holelist[i * 2 + 1] = (double)boundaryPoints[i - old_curTotal_Holes].y;
+		//	}
+		//}
+
 		if (isHole)
 		{
 			int old_curTotal_Holes = curTotal_Holes;
-			curTotal_Holes += boundaryPoints.size();
+			curTotal_Holes += 1;
 			in.numberofholes = curTotal_Holes;
 			in.holelist = (TRI_REAL*)realloc(in.holelist, in.numberofholes * 2 * sizeof(TRI_REAL));
+			Vec2 holeP = computeConvexHullCentroid(boundaryPoints);
 			for (int i = old_curTotal_Holes; i < in.numberofholes; i++) {
-				in.holelist[i * 2] = (double)boundaryPoints[i - old_curTotal_Holes].x;
-				in.holelist[i * 2 + 1] = (double)boundaryPoints[i - old_curTotal_Holes].y;
+				in.holelist[i * 2] = holeP.x;
+				in.holelist[i * 2 + 1] = holeP.y;
 			}
 		}
 
 		//if (!isHole)
-		//{
-				// segments markers
-		int old_curTotal_SegmentMarkers = curTotal_SegmentMarkers;
-		curTotal_SegmentMarkers += boundaryPoints.size();
-		in.segmentmarkerlist = (int*)malloc(in.numberofsegments * sizeof(int));
-		for (int i = old_curTotal_SegmentMarkers; i < in.numberofsegments; i++) {
-			in.segmentmarkerlist[i] = 1;  // 标记这是一个约束边
+		{
+			// segments markers
+			int old_curTotal_SegmentMarkers = curTotal_SegmentMarkers;
+			curTotal_SegmentMarkers += boundaryPoints.size();
+			in.segmentmarkerlist = (int*)malloc(in.numberofsegments * sizeof(int));
+			for (int i = old_curTotal_SegmentMarkers; i < in.numberofsegments; i++) {
+				in.segmentmarkerlist[i] = 1;  // 标记这是一个约束边
+			}
 		}
-		//}
 
 	}
 
@@ -1027,7 +1062,7 @@ PolygonInfo AutoPolygon::generateTriangles(const Rect& rect, float epsilon, floa
 	return ret;
 }
 
-void drawCVTriangle(cv::Mat& imageTri, const char* name, Triangles& tri, cv::Scalar color)
+void drawCVTriangle(cv::Mat& imageTri, const char* name, Triangles& tri, cv::Scalar color , bool isFill )
 {
 	std::vector<cv::Point> trianglePoints;
 	for (int i = 0; i < tri.indexCount / 3; i++)
@@ -1039,7 +1074,15 @@ void drawCVTriangle(cv::Mat& imageTri, const char* name, Triangles& tri, cv::Sca
 		trianglePoints.emplace_back(p1.x, p1.y);
 		trianglePoints.emplace_back(p2.x, p2.y);
 		trianglePoints.emplace_back(p3.x, p3.y);
-		cv::polylines(imageTri, trianglePoints, true, color, 2, cv::LINE_AA);
+		if (!isFill)
+		{
+			cv::polylines(imageTri, trianglePoints, true, color, 2, cv::LINE_AA);
+		}
+		else
+		{
+			cv::fillPoly(imageTri, trianglePoints, color,  cv::LINE_AA);
+		}
+		
 	}
 	cv::imshow(name, imageTri);
 }
@@ -1111,6 +1154,7 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 
 #ifdef _cv_debug_yzy	
 	cv::Mat imgTriMerge = cv::imread(this->_image->getFileName());
+	cv::Mat imgTriMergeForFill = cv::imread(this->_image->getFileName());
 #endif
 
 	//for (std::vector<Vec2>& mergePoly : mergeExpandPolygonList)
@@ -1122,7 +1166,8 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	//}
 	//Triangles totalTri = MergeTriangles(listMergedTri, true);
 #ifdef _cv_debug_yzy	
-	drawCVTriangle(imgTriMerge, "merged triangles", totalTri, cv::Scalar(0, 255, 255));
+	drawCVTriangle(imgTriMerge, "merged triangles", totalTri, cv::Scalar(0, 255, 255),true);
+	drawCVTriangle(imgTriMergeForFill, "merged triangles fill ", totalTri, cv::Scalar(0, 255, 255),false);
 #endif
 #ifdef _cv_debug_yzy
 
