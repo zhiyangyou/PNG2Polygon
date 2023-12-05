@@ -8,11 +8,11 @@
 
 减少overdraw
 
-**为什么重写写：**	
+**为什么重写：**	
 
-​		谷歌检索现成可用开源算法花了挺多时间，但是仅找到cocos-2dx的[CCAutoPolygon](https://github.com/cocos2d/cocos2d-x/blob/v4/cocos/2d/CCAutoPolygon.cpp)算法，这个算法有一个严重缺陷，单图像中有若干个明显可以分割的对象，这个算法只会找到一个，导致很多有效像素被截掉，并不能适用于很大一部分图片，遂重构了该算法，沿用其凸包点裁剪了和凸包点外扩的代码。
+​		谷歌检索现成可用开源算法花了挺多时间，但是仅找到cocos-2dx的[CCAutoPolygon](https://github.com/cocos2d/cocos2d-x/blob/v4/cocos/2d/CCAutoPolygon.cpp)算法，这个算法有一个严重缺陷，单图像中有若干个明显可以分割的对象，这个算法只会找到一个，导致很多有效像素被截掉，并不能适用于很大一部分图片，遂重构了该算法，沿用其凸包点裁剪和凸包点外扩的算法。
 
-​		目前讲过最好实现是[TexturePacker](https://www.codeandweb.com/texturepacker)软件的，支持挖洞，网格质量高。但是它并不开源，并且不喜欢其在Unity上的工作流（我需要调用CLI + 解析文本来实现等价的效果，而且有些同事的电脑上没有安装授权后的TexturePacker软件）。
+​		目前见过最好实现是[TexturePacker](https://www.codeandweb.com/texturepacker)软件的，支持挖洞，多边形包围紧凑，网格质量高。但是它并不开源，并且不喜欢其在Unity上的工作流（需要调用CLI + 解析文本来实现等价的效果，而且有些同事的电脑上没有安装授权后的TexturePacker软件）。
 
 # 算法步骤：
 
@@ -24,7 +24,7 @@
 
 
 
-## TODO（如果有业余时间）
+## TODO（如果有时间）
 
 **feature：**
 
@@ -37,8 +37,9 @@
 
 1. 点外扩时，小概率遇到部分凸包丢失，导致部分图像丢失
 2. native代码的安全性检查和错误返回值
-3. unicode系列编码的文件路劲
+3. unicode系列编码的文件路径
 
 **perf：**
 
-1. 一些c++写法可以更加高效，整理代码。减少因数据结构不一致导致数据流转的内存拷贝延迟
+1. 一些逻辑写法可以更加高效，减少因数据结构不一致导致数据流转的内存拷贝延迟，整理代码
+1. SIMD、 fast sqrt、 cache image data
