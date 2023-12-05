@@ -1202,19 +1202,24 @@ PolygonInfo AutoPolygon::generateTriangles(const Rect& rect, float epsilon, floa
 	return ret;
 }
 
-void drawCVTriangle(cv::Mat& imageTri, const char* name, Triangles& tri, const Rect& rect, int i, cv::Scalar color)
+void drawCVTriangle(cv::Mat& imageTri, const char* name, Triangles& tri, int i, cv::Scalar color)
 {
 	std::vector<cv::Point> trianglePoints;
-	for (int i = 0; i < tri.indexCount; i++)
+	for (int i = 0; i < tri.indexCount / 3; i++)
 	{
-		unsigned short index = tri.indices[i];
-		Vec3 p = tri.verts[index].vertices;
-		trianglePoints.emplace_back(p.x, p.y);
-	}
-	cv::polylines(imageTri, trianglePoints, true, color, 3, cv::LINE_AA);
-	char buf[128];
-	sprintf_s(buf, sizeof(buf), "img+Triangle%d", i);
+		trianglePoints.clear();
+		unsigned short index1 = tri.indices[i * 3];
+		unsigned short index2 = tri.indices[i * 3 + 1];
+		unsigned short index3 = tri.indices[i * 3 + 2];
+		Vec3 p1 = tri.verts[index1].vertices;
+		Vec3 p2 = tri.verts[index2].vertices;
+		Vec3 p3 = tri.verts[index3].vertices;
 
+		trianglePoints.push_back(cv::Point(p1.x, p1.y));
+		trianglePoints.push_back(cv::Point(p2.x, p2.y));
+		trianglePoints.push_back(cv::Point(p3.x, p3.y));
+		cv::polylines(imageTri, trianglePoints, true, color, 2, cv::LINE_AA);
+	}
 	cv::imshow(name, imageTri);
 }
 
@@ -1260,8 +1265,8 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 		std::vector<Vec2> expandPoly = expand(reducePoly, realRect, epsilon);
 		expandLists.push_back(expandPoly);
 #ifdef _cv_debug_yzy
-		drawCVPoints(imgOriginPoints, "origin points", pOrigin, count, cv::Scalar(255, 255, 1));
-		drawCVPoints(imgOriginReduce, "reduce points", reducePoly, count, cv::Scalar(0, 255, 0));
+		//drawCVPoints(imgOriginPoints, "origin points", pOrigin, count, cv::Scalar(255, 255, 1));
+		//drawCVPoints(imgOriginReduce, "reduce points", reducePoly, count, cv::Scalar(0, 255, 0));
 		drawCVPoints(imgOriginExpand, "expand points", expandPoly, count, cv::Scalar(255, 0, 0));
 		//drawCVTriangle( imgTri,"triangles", tri, realRect,count++,cv::Scalar(0, 0, 255));
 #endif
@@ -1280,7 +1285,7 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	{
 		drawCVPoints(imgOriginExpandMerge, "merged expand points", mergePoly, count, cv::Scalar(255, 255, 1));
 	}
-	cv::waitKey();
+	//cv::waitKey();
 
 #endif
 
@@ -1294,35 +1299,19 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 		triangulateByTriangle(mergePoly, mergeTri);
 		calculateUV(realRect, mergeTri.verts, mergeTri.vertCount);
 		listMergedTri.push_back(mergeTri);
-#ifdef _cv_debug_yzy	
-		drawCVTriangle(imgTriMerge, "merged triangles", mergeTri, realRect, count++, cv::Scalar(0, 0, 255));
-#endif
 	}
-
-
-
-
 	Triangles totalTri = MergeTriangles(listMergedTri, true);
+#ifdef _cv_debug_yzy	
+	drawCVTriangle(imgTriMerge, "merged triangles", totalTri, count++, cv::Scalar(0, 0, 255));
+#endif
 #ifdef _cv_debug_yzy
-	//for (int i =0 ; i < totalTri.vertCount; i ++)
-	//{
-	//	printf("tri vert %d:(%d,%d)\n",i,(int)totalTri.verts[i].vertices.x,(int)totalTri.verts[i].vertices.y);
-	//}
 
-	//for (int i =0 ; i < totalTri.indexCount/3; i ++)
-	//{
-	//	printf("tri index %d:(%d, %d, %d )\n",
-	//		i,
-	//		totalTri.indices[i*3],
-	//		totalTri.indices[i*3+1],
-	//		totalTri.indices[i*3+2] 
-	//		);
-	//}
 #endif
 
 	infoForFill.triangles = totalTri;
 	infoForFill.setFilename(_image->getFileName());
 	infoForFill.setRect(realRect);
+	cv::waitKey();
 }
 
 PolygonInfo AutoPolygon::generatePolygon(AbsImage* image, const Rect& rect, float epsilon, float threshold)
