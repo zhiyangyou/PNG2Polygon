@@ -107,7 +107,7 @@ struct   Color4B
 	uint8_t b = 0;
 	uint8_t a = 0;
 
-	
+
 };
 
 
@@ -138,7 +138,7 @@ struct   Color4F
 	float g = 0.f;
 	float b = 0.f;
 	float a = 0.f;
-	
+
 };
 
 Color4F& operator+=(Color4F& lhs, const Color4F& rhs);
@@ -286,6 +286,8 @@ struct   V3F_C4B_T2F
 
 	// tex coords (2F)
 	Tex2F        texCoords;           // 8 bytes
+
+	bool isHole;							
 };
 
 /** @struct V3F_T2F

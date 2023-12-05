@@ -32,6 +32,11 @@ inline Vec2::Vec2(float xx, float yy)
 {
 }
 
+inline Vec2::Vec2(float xx, float yy, bool hole)
+	: x(xx), y(yy), isHole(hole)
+{
+}
+
 inline Vec2::Vec2(const float* array)
 {
     set(array);
