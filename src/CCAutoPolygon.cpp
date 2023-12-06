@@ -122,21 +122,21 @@ struct Vec2Hash {
 	}
 };
 
-bool  removeDuplicateVec2(const std::vector<Vec2>& vec2Array, std::vector<Vec2>& uniqueVec2) {
-	std::unordered_set<Vec2, Vec2Hash> seenSet;
-	bool hasRepeat = false;
-	for (const Vec2& vec2 : vec2Array) {
-		if (seenSet.find(vec2) == seenSet.end()) {
-			uniqueVec2.push_back(vec2);
-			seenSet.insert(vec2);
-		}
-		else
-		{
-			hasRepeat = true;
-		}
-	}
-	return hasRepeat;
-}
+//bool  removeDuplicateVec2(const std::vector<Vec2>& vec2Array, std::vector<Vec2>& uniqueVec2) {
+//	std::unordered_set<Vec2, Vec2Hash> seenSet;
+//	bool hasRepeat = false;
+//	for (const Vec2& vec2 : vec2Array) {
+//		if (seenSet.find(vec2) == seenSet.end()) {
+//			uniqueVec2.push_back(vec2);
+//			seenSet.insert(vec2);
+//		}
+//		else
+//		{
+//			hasRepeat = true;
+//		}
+//	}
+//	return hasRepeat;
+//}
 
 std::pair<float, float> boundingBoxDimensions(const std::vector<Vec2>& points)
 {
@@ -250,12 +250,6 @@ void CollectPolyNodeData(
 		boundaryPoints.emplace_back(p.X, p.Y);
 	}
 	std::vector<Vec2> uniquePoly ;
-
-	TODO 此处的 重复点处理逻辑有一点不一样！,  读取就得
-	if (removeDuplicateVec2(boundaryPoints, uniquePoly))
-	{
-		return;
-	}
 
 	if (!boundaryPoints.empty())
 	{
@@ -1116,11 +1110,6 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 	for (std::vector<Vec2>& pOrigin : originpolygons)
 	{
 		std::vector<Vec2> reducePoly = reduce(pOrigin, epsilon);
-		std::vector<Vec2> uniqueReducePoly;
-		if (removeDuplicateVec2(reducePoly, uniqueReducePoly))
-		{
-			int a = 0;
-		}
 		std::vector<Vec2> expandPoly = expand(reducePoly, realRect, epsilon);
 		expandLists.push_back(expandPoly);
 #ifdef _cv_debug_yzy

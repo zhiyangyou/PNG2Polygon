@@ -10106,6 +10106,7 @@ struct behavior* b;
                     sortarray[j][0], sortarray[j][1]);
             }
             setvertextype(sortarray[j], UNDEADVERTEX);
+            if (b->poly) setvertex2tri(sortarray[j], NULL);     // https://github.com/wo80/Triangle/issues/10#issuecomment-205973754
             m->undeads++;
         }
         else {

@@ -32,7 +32,7 @@ int main()
 	std::cout << "sizeof(V3F_C4B_T2F) : "<<sizeof(V3F_C4B_T2F) <<"\n";
 	//PNGImage img("testImages/test2.png");
 	PNGImage img("testImages/tp4.png");
-	// PNGImage img("testImages/1.png");
+	 //PNGImage img("testImages/1.png");
 	//PNGImage img("E:\\_WorkSpace_E\\_GitHub\\PolygonPNG\\Unity\\UnityProject\\UnityAutoPolygon\\Assets\\TestImages\\test3.png");
 	//PNGImage img("D:/_github/PNG2Polygon/Unity/UnityProject/UnityAutoPolygon/Assets/TestImages/test3.png");
 	AutoPolygon p(&img);
@@ -43,7 +43,7 @@ int main()
 		float epsilon = 1.0f;
 		 epsilon = 53.5f;
 		 epsilon = 44.5f;	// 测试洞
-		 epsilon = 1.5f;	// 测试异常了
+		 //epsilon = 1.5f;	// 测试异常了
 		PolygonInfo info;
 		p.generateTriangles(info, Rect::ZERO, epsilon);
 		printf("epsilon: %f triangleNum: %d\tindexNum:%d\n", epsilon, info.triangles.vertCount, info.triangles.indexCount);
