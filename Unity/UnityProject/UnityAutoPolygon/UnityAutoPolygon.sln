@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityUIExtensions", "UnityUIExtensions.csproj", "{ba2f7668-8b29-8121-b83c-3dea30ef8e68}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YzyEditor", "YzyEditor.csproj", "{9a8ee943-7be8-2aed-103f-e92d3f6f6d34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoPolygon", "AutoPolygon.csproj", "{51efb13c-ce30-ed39-22c9-ae9dc50fa3e3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityUIExtensions.editor", "UnityUIExtensions.editor.csproj", "{a48eadaf-0456-6b87-826a-f8d334aa68b4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityUIExtensions.examples", "UnityUIExtensions.examples.csproj", "{810f4973-87e6-bb5f-5819-88a72f47a0fd}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{9a99f316-2d36-510f-a7ca-fec925a7ac82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoPolygon", "AutoPolygon.csproj", "{51efb13c-ce30-ed39-22c9-ae9dc50fa3e3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "Assembly-CSharp-Editor.csproj", "{fd3e68e2-507e-35ee-4ca8-24d2bf4caa99}"
 EndProject
@@ -14,12 +20,18 @@ Global
 		Debug|Any CPU = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ba2f7668-8b29-8121-b83c-3dea30ef8e68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ba2f7668-8b29-8121-b83c-3dea30ef8e68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9a8ee943-7be8-2aed-103f-e92d3f6f6d34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9a8ee943-7be8-2aed-103f-e92d3f6f6d34}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{51efb13c-ce30-ed39-22c9-ae9dc50fa3e3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{51efb13c-ce30-ed39-22c9-ae9dc50fa3e3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{a48eadaf-0456-6b87-826a-f8d334aa68b4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{a48eadaf-0456-6b87-826a-f8d334aa68b4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{810f4973-87e6-bb5f-5819-88a72f47a0fd}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{810f4973-87e6-bb5f-5819-88a72f47a0fd}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9a99f316-2d36-510f-a7ca-fec925a7ac82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9a99f316-2d36-510f-a7ca-fec925a7ac82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51efb13c-ce30-ed39-22c9-ae9dc50fa3e3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51efb13c-ce30-ed39-22c9-ae9dc50fa3e3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{fd3e68e2-507e-35ee-4ca8-24d2bf4caa99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{fd3e68e2-507e-35ee-4ca8-24d2bf4caa99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
