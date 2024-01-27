@@ -31,8 +31,6 @@ THE SOFTWARE.
 
 #include <string>
 #include <vector>
-#include <memory>
-#include <triangle/triangle.h>
 
 #include "Vec2.h"
 #include "CCGeometry.h"
@@ -69,7 +67,7 @@ struct Triangles
 
 	// static void DisposeTriangleMemory(Triangles tri);
 	//
-	// static Triangles MergeTriangles(std::vector<Triangles> &list, bool autoRelease);
+	// static Triangles MergeAndConvertList2IndexTriangles(std::vector<Triangles> &list, bool autoRelease);
 };
 
 

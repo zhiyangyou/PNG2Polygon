@@ -37,10 +37,14 @@ THE SOFTWARE.
 #include <algorithm>
 #include <cassert>
 #include <limits>
-#include <unordered_set>
+//#include <unordered_set>
 
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 
+
+#include <iostream>
 
 #include "poly2tri/poly2tri.h"
 #include "polypartition/polypartition.h"
@@ -164,7 +168,7 @@ std::pair<float, float> boundingBoxDimensions(const std::vector<Vec2>& points)
 
 	return std::make_pair(width, height);
 }
-Triangles MergeTriangles(std::vector<Triangles>& list, bool releasListTriMemory)
+Triangles MergeAndConvertList2IndexTriangles(std::vector<Triangles>& list, bool releasListTriMemory)
 {
 	int totalVS = 0;
 	int totalIndex = 0;
@@ -1119,48 +1123,28 @@ void AutoPolygon::generateTriangles(PolygonInfo& infoForFill, const Rect& rect /
 		//drawCVTriangle( imgTri,"triangles", tri, realRect,count++,cv::Scalar(0, 0, 255));
 #endif
 	}
-
-
-	// merge poly
-
-	std::vector<Triangles> listMergedTri;
 	Triangles totalTri = MergePolygons(expandLists, realRect);
-
-#ifdef _cv_debug_yzy	
-	//cv::Mat imgOriginExpandMerge = cv::imread(this->_image->getFileName());
-	//for (std::vector<Vec2>& mergePoly : mergeExpandPolygonList)
-	//{
-	//	drawCVPoints(imgOriginExpandMerge, "merged expand points", mergePoly, count, cv::Scalar(255, 255, 1));
-	//}
-	//cv::waitKey();
-
-#endif
 
 #ifdef _cv_debug_yzy	
 	cv::Mat imgTriMerge = cv::imread(this->_image->getFileName());
 	cv::Mat imgTriMergeForFill = cv::imread(this->_image->getFileName());
 #endif
 
-	//for (std::vector<Vec2>& mergePoly : mergeExpandPolygonList)
-	//{
-	//	Triangles mergeTri;
-	//	triangulateByTriangle(mergePoly, mergeTri);
-	//	calculateUV(realRect, mergeTri.verts, mergeTri.vertCount);
-	//	listMergedTri.push_back(mergeTri);
-	//}
-	//Triangles totalTri = MergeTriangles(listMergedTri, true);
+	
 #ifdef _cv_debug_yzy	
 	drawCVTriangle(imgTriMerge, "merged triangles", totalTri, cv::Scalar(0, 255, 255),true);
 	drawCVTriangle(imgTriMergeForFill, "merged triangles fill ", totalTri, cv::Scalar(0, 255, 255),false);
 #endif
-#ifdef _cv_debug_yzy
 
-#endif
-
+	//std::vector<Triangles> vecTris;
+	//vecTris.emplace_back(totalTri);
+	//Triangles outTri = MergeAndConvertList2IndexTriangles(vecTris, true);
 	infoForFill.triangles = totalTri;
 	infoForFill.setFilename(_image->getFileName());
 	infoForFill.setRect(realRect);
+#ifdef _cv_debug_yzy	
 	cv::waitKey();
+#endif
 }
 
 PolygonInfo AutoPolygon::generatePolygon(AbsImage* image, const Rect& rect, float epsilon, float threshold)

@@ -42,8 +42,9 @@ int main()
 		// int epsilon = i*2;
 		float epsilon = 1.0f;
 		 epsilon = 53.5f;
-		 epsilon = 44.5f;	// 测试洞
+		 //epsilon = 44.5f;	// 测试洞
 		 //epsilon = 1.5f;	// 测试异常了
+		 epsilon = 39.9f;	// 测试异常了
 		PolygonInfo info;
 		p.generateTriangles(info, Rect::ZERO, epsilon);
 		printf("epsilon: %f triangleNum: %d\tindexNum:%d\n", epsilon, info.triangles.vertCount, info.triangles.indexCount);

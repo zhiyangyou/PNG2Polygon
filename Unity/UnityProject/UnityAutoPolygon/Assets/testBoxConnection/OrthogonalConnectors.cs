@@ -12,7 +12,7 @@ namespace testBoxConnection
         e,
         s,
         w
-    }
+    } 
 
     public enum Direction
     {

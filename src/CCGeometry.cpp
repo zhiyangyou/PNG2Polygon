@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 #include "CCGeometry.h"
 
-#include <algorithm>
+//#include <algorithm>
 #include <cassert>
 #include <cmath>
  
